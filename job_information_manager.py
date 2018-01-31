@@ -1,8 +1,11 @@
 import os
 import posixpath
 from mako.template import Template as MakoTemplate
-from middleware.job.schema import Template
-from middleware.ssh import ssh
+###
+from middleware.job.schema import Template  #### SQLAlchemy stuff !!!!
+####
+
+from ssh import ssh
 import re
 import json
 from instance.config import *

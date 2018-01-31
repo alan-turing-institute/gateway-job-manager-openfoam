@@ -4,6 +4,8 @@ from flask_cors import CORS
 
 import json
 
+from api import SetupApi, ProgressApi, DataApi, CancelApi, RunApi
+
 ##import job_information_manager as JIM
 
 
