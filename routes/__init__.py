@@ -2,7 +2,7 @@
 Routes module
 """
 
-from .job_routes import JobStartApi
+from .job_routes import JobStartApi, JobStatusApi
 
 
 def setup_routes(api):
@@ -11,4 +11,5 @@ def setup_routes(api):
     """
     api.add_resource(JobStartApi,'/job/<int:job_id>/start')
 
+    api.add_resource(JobStatusApi,'/job/<int:job_id>/status')
     
