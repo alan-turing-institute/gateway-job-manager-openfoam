@@ -2,7 +2,7 @@
 Routes module
 """
 
-from .job_routes import JobStartApi, JobStatusApi
+from .job_routes import JobStartApi, JobStatusApi, JobOutputApi
 
 
 def setup_routes(api):
