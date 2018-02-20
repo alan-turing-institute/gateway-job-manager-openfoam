@@ -13,3 +13,4 @@ def setup_routes(api):
 
     api.add_resource(JobStatusApi,'/job/<int:job_id>/status')
     
+    api.add_resource(JobOutputApi,'/job/<int:job_id>/output')

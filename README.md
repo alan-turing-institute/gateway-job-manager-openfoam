@@ -59,7 +59,10 @@ A PATCH request to this endpoint will trigger a PATCH request to the middleware,
 The data should be a json object `{"job_status": <status>}`.
 
 
-
+```
+/job/<job_id>/output
+```
+A GET request to this endpoint will return an access token allowing retrieval of the job output.
 
 
 

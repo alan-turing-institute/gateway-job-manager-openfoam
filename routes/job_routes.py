@@ -82,3 +82,12 @@ class JobStatusApi(Resource):
         """
         r = requests.patch(MIDDLEWARE_API_BASE+"job/"+str(job_id),json={"job_status":job_status}) 
         print(r.text)
+
+class JobOutputApi(Resource):
+    """
+    Endpoint to retrieve the output of a job once it has finished.  Return an access token
+    """
+
+    def get(self, job_id):
+        return "This is an access token for job "+str(job_id)
+        
