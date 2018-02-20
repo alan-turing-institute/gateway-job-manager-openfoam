@@ -28,6 +28,36 @@ This Flask app will communicate with the middleware passing HTTP verbs via the `
 There are (temporary) example API calls in `example_requests_requests.py`
 
 
+The following routes are implemented:
+```
+/job/job_id/start
+```
+a POST on this endpoint will start a job with id=job_id.  The 
+data to be sent should be a json object with the following format:
+```
+{"fields_to_patch": [
+			{
+			"name" : <field_name>,
+			"value": <val>
+			},
+			...
+		],
+"scripts" : [
+		{
+		"name" : <script_name>,
+		"location" : <script_location>
+		},
+		...
+	]
+}
+```
+
+```
+/job/<job_id>/status
+```
+A PATCH request to this endpoint will trigger a PATCH request to the middleware, updating the status of a job.
+The data should be a json object `{"job_status": <status>}`.
+
 
 
 
