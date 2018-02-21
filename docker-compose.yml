@@ -1,11 +1,11 @@
 version: '3'
 services:
   middleware:
-    build: ../../science-gateway-data-model/flaskify
+    build: ../science-gateway-data-model/
     ports:
     - "5000:5000"
     volumes:
-    - ../../science-gateway-data-model/flaskify:/app
+    - ../science-gateway-data-model:/app
     depends_on:
     - postgres
     networks:
@@ -21,11 +21,11 @@ services:
     networks:
      - db_nw
   job_mgr:
-    build: ../../science-gateway-job-manager-blue/nb_wip
+    build: .
     ports:
     - "5001:5001"
     volumes:
-    - ../../science-gateway-job-manager-blue/nb_wip:/app
+    - .:/app
     depends_on:
     - middleware
     networks:

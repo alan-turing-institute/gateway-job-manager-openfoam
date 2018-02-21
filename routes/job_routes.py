@@ -12,7 +12,7 @@ from webargs.flaskparser import use_kwargs
 
 import requests
 
-MIDDLEWARE_API_BASE = "http://0.0.0.0:5000/"
+MIDDLEWARE_API_BASE = "http://middleware:5000/"
 
 
 job_field_args = {
@@ -81,7 +81,8 @@ class JobStatusApi(Resource):
         update the status of this job - do a PATCH request to middleware api
         """
         r = requests.patch(MIDDLEWARE_API_BASE+"job/"+str(job_id),json={"job_status":job_status}) 
-        print(r.text)
+        return r.status_code
+
 
 class JobOutputApi(Resource):
     """
