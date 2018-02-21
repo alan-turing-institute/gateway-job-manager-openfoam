@@ -1,0 +1,37 @@
+version: '3'
+services:
+  middleware:
+    build: ../../science-gateway-data-model/flaskify
+    ports:
+    - "5000:5000"
+    volumes:
+    - ../../science-gateway-data-model/flaskify:/app
+    depends_on:
+    - postgres
+    networks:
+    - db_nw
+  postgres:
+    image:  "postgres:latest"
+    volumes:
+    - database:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=sg
+      - POSTGRES_PASSWORD=sg
+      - POSTGRES_DB=sg
+    networks:
+     - db_nw
+  job_mgr:
+    build: ../../science-gateway-job-manager-blue/nb_wip
+    ports:
+    - "5001:5001"
+    volumes:
+    - ../../science-gateway-job-manager-blue/nb_wip:/app
+    depends_on:
+    - middleware
+    networks:
+    - db_nw
+networks:
+  db_nw:
+    driver: bridge
+volumes:
+  database:
