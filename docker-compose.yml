@@ -8,6 +8,7 @@ services:
     - ../science-gateway-data-model:/app
     depends_on:
     - postgres
+    - simulator
     networks:
     - db_nw
   postgres:
@@ -30,6 +31,15 @@ services:
     - middleware
     networks:
     - db_nw
+  simulator:
+    build: ../science-gateway-simulator-openfoam/
+    env_file:
+     - keys/simulator.env
+    ports:
+    - "10022:22"
+    volumes:
+    - .:/app
+    privileged: true
 networks:
   db_nw:
     driver: bridge

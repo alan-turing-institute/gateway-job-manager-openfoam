@@ -1,6 +1,21 @@
-# science-gateway-job-manager-blue
+# Job Manager: Blue
 
-job manager for the Blue simulator
+Job manager for the Blue simulator
+
+
+
+### Installation
+
+To run the job manager.
+
+```
+(cd keys && ./create_keys.sh)
+docker-compose up
+```
+
+
+
+
 
 
 This should be a standalone Flask app, that deals with running jobs on a
