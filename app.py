@@ -25,6 +25,16 @@ def configure_app(app):
 app = Flask(__name__, instance_relative_config=True)
 configure_app(app)
 
+#### TMP - SHOULDNT NEED THIS!!
+
+for k,v in app.config.items():
+    try:
+        os.environ[k] = v
+    except:
+        pass
+
+#################
+
 api = Api(app)
 CORS(app, resources={r'/*': {'origins': '*'}})
 

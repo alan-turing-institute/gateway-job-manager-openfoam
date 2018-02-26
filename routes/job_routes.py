@@ -4,8 +4,8 @@ Job routes for the job manager API.
 
 from flask_restful import Resource, abort
 
-#from connection.models import Job, db
-#from connection.schemas import JobHeaderSchema, JobSchema
+from connection.script_repository import ScriptRetriever
+
 
 from webargs import fields, missing
 from webargs.flaskparser import use_kwargs
@@ -61,7 +61,9 @@ def do_some_patching(fields_to_patch, scripts):
     """
     dummy method to check contents of POST request
     """
+    script_retriever = ScriptRetriever()
     for script in scripts:
+        script_retriever.retrieve_blob(script["name"],script["location"])
         print("Will wget script %s from %s" % (script["name"],script["location"]))
 
     for field in fields_to_patch:
