@@ -17,7 +17,7 @@ MIDDLEWARE_API_BASE = "http://middleware:5000/"
 
 job_field_args = {
     'name': fields.Str(required=True),
-    'value': fields.Str(required=True)    
+    'value': fields.Str(required=True)
 }
 
 job_script_args = {
@@ -53,12 +53,12 @@ class JobStartApi(Resource):
         return {
             "status" : return_code
         }
-        
+
 
 
 
 def do_some_patching(fields_to_patch, scripts):
-    """ 
+    """
     dummy method to check contents of POST request
     """
     for script in scripts:
@@ -74,13 +74,13 @@ class JobStatusApi(Resource):
     """
     Endpoint to update the status of a job  when it starts running etc.
     """
-    
+
     @use_kwargs(job_status_args, locations=('json',))
     def patch(self, job_id, job_status):
         """
         update the status of this job - do a PATCH request to middleware api
         """
-        r = requests.patch(MIDDLEWARE_API_BASE+"job/"+str(job_id),json={"job_status":job_status}) 
+        r = requests.patch(MIDDLEWARE_API_BASE+"job/"+str(job_id),json={"job_status":job_status})
         return r.status_code
 
 
@@ -91,4 +91,3 @@ class JobOutputApi(Resource):
 
     def get(self, job_id):
         return "This is an access token for job "+str(job_id)
-        

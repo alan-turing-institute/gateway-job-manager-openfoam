@@ -4,7 +4,7 @@ from scp import SCPClient
 from io import StringIO
 
 
-class ssh():
+class SSH():
     """
     A simple class around a basic paramiko ssh connection to make things easier
     to understand.

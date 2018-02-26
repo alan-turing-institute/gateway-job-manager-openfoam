@@ -6,3 +6,6 @@ services:
      - "5001:5001"
     volumes:
      - .:/app
+
+    environment:
+      - FLASK_CONFIGURATION=default
