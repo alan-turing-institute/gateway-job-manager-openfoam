@@ -1,0 +1,47 @@
+version: '3'
+services:
+  middleware:
+    build: ../science-gateway-data-model/
+    ports:
+    - "5000:5000"
+    volumes:
+    - ../science-gateway-data-model:/app
+    depends_on:
+    - postgres
+    - simulator
+    networks:
+    - db_nw
+  postgres:
+    image:  "postgres:latest"
+    volumes:
+    - database:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=sg
+      - POSTGRES_PASSWORD=sg
+      - POSTGRES_DB=sg
+    networks:
+     - db_nw
+  job_mgr:
+    build: .
+    ports:
+    - "5001:5001"
+    volumes:
+    - .:/app
+    depends_on:
+    - middleware
+    networks:
+    - db_nw
+  simulator:
+    build: ../science-gateway-simulator-openfoam/
+    env_file:
+     - keys/simulator.env
+    ports:
+    - "10022:22"
+    volumes:
+    - .:/app
+    privileged: true
+networks:
+  db_nw:
+    driver: bridge
+volumes:
+  database:
