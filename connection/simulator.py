@@ -15,7 +15,7 @@ SSH_PORT = os.environ.get('SSH_PORT')
 SSH_PRIVATE_KEY_PATH = os.environ.get('SSH_PRIVATE_KEY_PATH')
 SIM_ROOT = os.environ.get('SIM_ROOT')
 
-debug_variables = True
+debug_variables = False
 if debug_variables:
     print('SSH_USER', SSH_USER)
     print('SSH_HOSTNAME', SSH_HOSTNAME)
