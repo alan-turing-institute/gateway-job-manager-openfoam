@@ -2,8 +2,6 @@
 
 Job manager for the Blue simulator
 
-
-
 ### Installation
 
 To run the job manager.
@@ -13,9 +11,9 @@ To run the job manager.
 docker-compose up
 ```
 
+### Configuration
 
-
-
+Overwrite the configuration in `instance/config.cfg`. An example is provided in the file `instance/config.cfg.example`.
 
 
 This should be a standalone Flask app, that deals with running jobs on a
