@@ -1,7 +1,7 @@
 FROM base/archlinux:latest
 
 # Install a bunch of extra packages
-RUN pacman -Sy --noconfirm python python-pip
+RUN pacman -Sy --noconfirm sudo python python-pip openssh vim supervisor
 
 # Set up a UTF 8 locale
 RUN sed -i "s/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/" /etc/locale.gen
@@ -18,8 +18,19 @@ RUN pip install -r requirements.txt
 # Set up the application state
 
 EXPOSE 5001
+EXPOSE 22
 ENV FLASK_APP app.py
 
-# Configure the run command
-CMD ["python","app.py"]
+RUN mkdir -p /var/log/supervisor && \
+    mkdir -p /etc/supervisor/conf.d
 
+ADD supervisor/supervisor.conf /etc/supervisor.conf
+ADD supervisor/app.conf /etc/supervisor/conf.d/app.conf
+
+RUN useradd -mU -s /bin/bash testuser && echo 'testuser:testuser' | chpasswd
+RUN echo "docker ALL=(ALL:ALL) ALL" | (EDITOR="tee -a" visudo)
+RUN echo "AllowUsers testuser" >> /etc/ssh/sshd_config
+
+RUN [ ! -f /etc/ssh/ssh_host_rsa_key ] && ssh-keygen -A;
+
+CMD ["supervisord", "-c", "/etc/supervisor.conf"]

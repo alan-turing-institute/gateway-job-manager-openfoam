@@ -4,6 +4,7 @@ services:
     build: .
     ports:
      - "5001:5001"
+     - "10022:22"
     volumes:
      - .:/app
 
