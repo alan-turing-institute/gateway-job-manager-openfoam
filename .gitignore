@@ -2,3 +2,8 @@ simulator_key*
 simulator.env
 *.log
 *.pid
+
+# Python stuff
+__pycache__/
+.cache/
+.pytest_cache/
