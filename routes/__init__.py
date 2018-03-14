@@ -3,7 +3,7 @@ Routes module
 """
 
 from .job_routes import JobStartApi, JobStatusApi, JobOutputApi
-from .fake_routes import Test
+from .fake_routes import TestApi
 
 def setup_routes(api):
     """
@@ -15,4 +15,4 @@ def setup_routes(api):
 
     api.add_resource(JobOutputApi,'/job/<int:job_id>/output')
 
-    api.add_resource(Test,'/test')
+    api.add_resource(TestApi,'/test')

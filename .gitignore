@@ -3,7 +3,7 @@ simulator.env
 *.log
 *.pid
 
-# Python stuff
+# python files
 __pycache__/
 .cache/
 .pytest_cache/

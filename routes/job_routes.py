@@ -4,15 +4,10 @@ Job routes for the job manager API.
 
 from flask_restful import Resource, abort
 
-#from connection.models import Job, db
-#from connection.schemas import JobHeaderSchema, JobSchema
-
 from webargs import fields, missing
 from webargs.flaskparser import use_kwargs
 
 import requests
-
-MIDDLEWARE_API_BASE = "http://middleware:5000/"
 
 
 job_field_args = {
