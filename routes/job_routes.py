@@ -12,8 +12,6 @@ from webargs.flaskparser import use_kwargs
 
 import requests
 
-MIDDLEWARE_API_BASE = "http://middleware:5000/"
-
 
 job_field_args = {
     'name': fields.Str(required=True),

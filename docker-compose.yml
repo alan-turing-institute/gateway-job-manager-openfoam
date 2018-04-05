@@ -1,11 +1,13 @@
 version: '3'
 services:
-  job_mgr:
+  job-manager:
     build: .
     ports:
      - "5001:5001"
+     - "10023:22"
     volumes:
      - .:/app
-
+    env_file:
+      - ./keys/simulator.env
     environment:
       - FLASK_CONFIGURATION=default

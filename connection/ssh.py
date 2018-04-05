@@ -10,9 +10,7 @@ class SSH():
     to understand.
     """
 
-    def __init__(self, hostname, username, port,
-                 private_key_path=None, private_key_string=None,
-                 debug=True):
+    def __init__(self, credentials, debug=True):
         """
         Load keys from private_key_path and private_key_string
         """
@@ -28,19 +26,23 @@ class SSH():
 
         # here a supplied key string will take precendence
         # over a supplied key path
-        if private_key_string:  # load from string
+
+        if credentials.private_key_string:  # load from string
             look_for_keys = False
-            private_key_string_ = StringIO(private_key_string)
+            private_key_string_ = StringIO(credentials.private_key_string)
             pkey = paramiko.RSAKey.from_private_key(private_key_string_)
             private_key_string_.close()
-        elif private_key_path:  # load from file
+        elif credentials.private_key_path:  # load from file
             look_for_keys = False
-            pkey = paramiko.RSAKey.from_private_key_file(private_key_path)
+            pkey = paramiko.RSAKey.from_private_key_file(
+                credentials.private_key_path)
+
+        print(credentials.ssh_hostname)
 
         self.client.connect(
-            hostname,
-            port=port,
-            username=username,
+            hostname=credentials.ssh_hostname,
+            port=credentials.ssh_port,
+            username=credentials.ssh_username,
             pkey=pkey,
             look_for_keys=look_for_keys)
 

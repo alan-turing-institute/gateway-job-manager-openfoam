@@ -1,3 +1,9 @@
 simulator_key*
 simulator.env
-instance/config.cfg
+*.log
+*.pid
+
+# python files
+__pycache__/
+.cache/
+.pytest_cache/
