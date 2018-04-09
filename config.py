@@ -11,7 +11,7 @@ class DevelopmentConfig(BaseConfig):
     SSH_PRIVATE_KEY_PATH='keys/simulator_key'
     SIM_ROOT='/home/testuser'
     AZURE_ACCOUNT_NAME='sgmiddleware'
-    AZURE_ACCOUNT_KEy='4RwfWUWnxoVz/GdMkP8mbX9TrAx4eIOWil1ZAgISNDHxCqa643t2yld/QrejL5F1IdOAJBCsg+/ASGr3+X4Qmg=='
+    AZURE_ACCOUNT_KEY='4RwfWUWnxoVz/GdMkP8mbX9TrAx4eIOWil1ZAgISNDHxCqa643t2yld/QrejL5F1IdOAJBCsg+/ASGr3+X4Qmg=='
     TMP_SCRIPT_DIR="/tmp/"
 
     
