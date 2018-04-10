@@ -1,6 +1,6 @@
-# Job Manager: Blue
+# Job Manager: Openfoam
 
-Job manager for the Blue simulator
+Job manager for the Openfoam simulator
 
 ### Installation
 
@@ -13,15 +13,15 @@ docker-compose up
 
 ### Configuration
 
-Overwrite the configuration in `instance/config.cfg`. An example is provided in the file `instance/config.cfg.example`.
+Overwrite the configuration in `config.py`. An example is provided in the file `config.py.example`.
 
 
 This should be a standalone Flask app, that deals with running jobs on a
-specific backend (in this case Blue).
+specific backend (in this case Openfoam).
 
-Start by looking at what is there in science-gateway-middleware.
-`middleware/job_information_manager.py`
-seems to be a good starting point.
+Code that had previously been in science-gateway-middleware is now in 
+`tmp_reference/job_information_manager.py`
+and seems to be a good starting point.
 
 Create a new app.py and factory.py with a `create_app` function, and fill bits
 in as I come to understand them...
