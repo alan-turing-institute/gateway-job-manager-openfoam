@@ -7,3 +7,5 @@ simulator.env
 __pycache__/
 .cache/
 .pytest_cache/
+
+config.py
