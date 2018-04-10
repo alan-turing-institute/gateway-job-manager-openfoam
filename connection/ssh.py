@@ -58,12 +58,22 @@ class SSH():
 
         return stdout, stderr, exit_code
 
-    def secure_copy(self, filename, destination_path):
+    def secure_copy_put(self, filename, destination_path):
         """
-        Use SCPClient to copy files over an ssh connection.
+        Use SCPClient to copy files over an ssh connection to a 
+        remote machine.
         """
         with SCPClient(self.client.get_transport()) as scp:
             scp.put(filename, destination_path)
+
+    def secure_copy_get(self, filename, destination_path):
+        """
+        Use SCPClient to copy files over an ssh connection from
+        remote machine to this host.
+        """
+        with SCPClient(self.client.get_transport()) as scp:
+            scp.put(filename, destination_path)
+            
 
     def close_connection(self):
         """

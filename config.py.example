@@ -10,8 +10,11 @@ class DevelopmentConfig(BaseConfig):
     SSH_PORT=22
     SSH_PRIVATE_KEY_PATH='keys/simulator_key'
     SIM_ROOT='/home/testuser'
+    AZURE_ACCOUNT_NAME='INSERT_ACCOUNT_NAME_HERE'
+    AZURE_ACCOUNT_KEY='INSERT_ACCOUNT_KEY_HERE'
+    TMP_SCRIPT_DIR="/tmp/"
 
-
+    
 class TestingConfig(BaseConfig):
     """Testing configuration"""
     TESTING = True
