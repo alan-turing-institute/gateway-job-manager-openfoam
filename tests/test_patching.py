@@ -7,11 +7,16 @@ import os
 import re
 import json
 
+from pytest import raises
+from werkzeug.exceptions import HTTPException
+
 from .decorators import request_context
 from .fixtures import demo_app as app  # flake8: noqa
 
+import unittest.mock as mock
+
 from preprocessor import patcher
-from routes.job_routes import JobStartApi
+from routes import JobStartApi
 
 RESOURCE_DIR='tests/resources'
 TMP_DIR='tests/tmp/'
@@ -50,8 +55,6 @@ def test_simple_patch():
             break
     assert(outcome)
 
-
-
 #
 # job_data = {
 #   "fields_to_patch": [{
@@ -67,8 +70,9 @@ def test_simple_patch():
 
 
 @request_context("/job/1/start",
-                 data='{"name": "bob", "case_id": "1", "author": "bob"}',
+                 data='{"fields_to_patch": [], "scripts": ["resources/"], "username": "testuser"}',
                  content_type='application/json', method="POST")
+# @mock.patch('', side_effect=mock_mkdir)
 def test_patch_with_start(app):
-    result = JobStartApi().dispatch_request()
+    result = JobStartApi().dispatch_request(1)
     assert(result['status']==0)
