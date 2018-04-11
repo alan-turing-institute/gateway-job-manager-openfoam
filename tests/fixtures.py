@@ -7,7 +7,7 @@ from flask_restful import Api
 
 from pytest import fixture
 
-from routes import setup_routes
+# from routes import setup_routes
 
 
 @fixture(scope="module")
@@ -22,6 +22,6 @@ def demo_app():
 
     api = Api(app)
 
-    setup_routes(api)
+    # setup_routes(api)
 
     return app
