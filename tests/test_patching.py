@@ -2,7 +2,6 @@
 Test patching.
 """
 
-
 import os
 import re
 import json
@@ -55,24 +54,16 @@ def test_simple_patch():
             break
     assert(outcome)
 
-#
-# job_data = {
-#   "fields_to_patch": [{
-#     "name": "field1",
-#     "value": "val1"
-#   }],
-#   "scripts": [{
-#     "name": "Allrun",
-#     "location": "testopenfoamapi"
-#   }],
-#   "username": "testuser"
-# }
+
+def mock_get_scripts(scripts):
+    print("FAKING GETTING SCRIPTS")
+    return 0
 
 
-@request_context("/job/1/start",
-                 data='{"fields_to_patch": [], "scripts": ["resources/"], "username": "testuser"}',
+@mock.patch('preprocessor.file_getter.get_remote_scripts', side_effect=mock_get_scripts)
+@request_context("/job/1/start",1,
+                 data='{"fields_to_patch": [], "scripts": [], "username": "testuser"}',
                  content_type='application/json', method="POST")
-# @mock.patch('', side_effect=mock_mkdir)
-def test_patch_with_start(app):
+def test_patch_with_start(mock_get_scripts,app):
     result = JobStartApi().dispatch_request(1)
     assert(result['status']==0)

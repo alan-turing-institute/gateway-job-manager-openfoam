@@ -11,6 +11,9 @@ from webargs.flaskparser import use_kwargs
 import requests
 import os
 
+from preprocessor import file_getter
+
+
 job_field_args = {
     'name': fields.Str(required=True),
     'value': fields.Str(required=True)
@@ -33,6 +36,8 @@ job_status_args = {
 }
 
 
+
+
 class JobStartApi(Resource):
     """
     Endpoint for when a job is started, patch the backend scripts.
@@ -44,12 +49,12 @@ class JobStartApi(Resource):
         retrieve scripts, patch scripts, check return codes, tell backend to run the job.
         """
         print("About to start job %s" % job_id)
+        return_code = file_getter.get_remote_scripts(scripts) ##patch_and_copy(fields_to_patch, scripts)
 
-        # return_code = patch_and_copy(fields_to_patch, scripts)
-        return_code = 0
         return {
             "status" : return_code
         }
+
 
 
 class JobStatusApi(Resource):
