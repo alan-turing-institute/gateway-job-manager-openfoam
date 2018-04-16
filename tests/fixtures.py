@@ -7,6 +7,8 @@ from flask_restful import Api
 
 from pytest import fixture
 
+from config import TestingConfig
+
 # from routes import setup_routes
 
 
@@ -17,6 +19,7 @@ def demo_app():
     """
     app = Flask(__name__)
 
+    app.config.from_object(TestingConfig)
     app.testing = True
 
 
