@@ -19,9 +19,10 @@ import unittest.mock as mock
 from preprocessor import patcher
 from routes import JobStartApi
 
-RESOURCE_DIR='tests/resources'
-TMP_INPUT_DIR = app().config["TMP_SCRIPT_DIR"] ### 'tests/tmp/'
-TMP_PATCH_DIR = os.path.join(TMP_INPUT_DIR,"patched")
+RESOURCE_DIR = 'tests/resources'
+TMP_INPUT_DIR = app().config["TMP_SCRIPT_DIR"]  # 'tests/tmp/'
+TMP_PATCH_DIR = os.path.join(TMP_INPUT_DIR, "patched")
+
 
 def clear_and_recreate_tmp_dir():
     """
@@ -40,20 +41,18 @@ def test_simple_patch():
     clear_and_recreate_tmp_dir()
 
     base_filename = "input_script_0.py"
-    
-    source_script = os.path.join(RESOURCE_DIR,base_filename)
+    source_script = os.path.join(RESOURCE_DIR, base_filename)
     assert(os.path.exists(source_script))
 
-    input_script = os.path.join(TMP_INPUT_DIR,base_filename)
+    input_script = os.path.join(TMP_INPUT_DIR, base_filename)
     shutil.copy(source_script, input_script)
-    
 
-    patched_filename = os.path.join(TMP_PATCH_DIR,base_filename)
+    patched_filename = os.path.join(TMP_PATCH_DIR, base_filename)
 
-### parameters to patch
-    parameter_dict = [{"name":"foo","value":"bar"}]
+#  parameters to patch
+    parameter_dict = [{"name": "foo", "value": "bar"}]
 
-#### do the patching
+#  do the patching
     patcher.patch(TMP_INPUT_DIR, parameter_dict)
 
     assert(os.path.exists(patched_filename))
@@ -72,55 +71,56 @@ def test_simple_patch():
     assert(outcome)
 
 
-def mock_get_scripts(scripts,tmp_dir=TMP_INPUT_DIR):
+def mock_get_scripts(scripts, tmp_dir=TMP_INPUT_DIR):
     """
-    Bypass getting scripts from azure - just copy from local RESOURCE_DIR to tmp_dir instead
+    Bypass getting scripts from azure - just copy from local
+    RESOURCE_DIR to tmp_dir instead
     """
     for script in scripts:
-        source_filepath = os.path.join(RESOURCE_DIR,script["source"])
-        dest_filepath = os.path.join(tmp_dir,script["destination"])
-        os.system("cp "+source_filepath+" "+dest_filepath)
+        source_filepath = os.path.join(RESOURCE_DIR, script["source"])
+        dest_filepath = os.path.join(tmp_dir, script["destination"])
+        os.system("cp " + source_filepath + " " + dest_filepath)
     return 0
 
-patch_with_start_data='''{
-    "fields_to_patch": 
+
+patch_with_start_data = '''{
+    "fields_to_patch":
     [
       {"name":"FOO","value":"BAR"},
       {"name": "Foo", "value": "Bar"}
-    ], 
-    "scripts": 
+    ],
+    "scripts":
     [
         {"source":"input_script_1.py","destination":"input_script_1.py"},
         {"source" : "input_script_2.py","destination": "input_script_2.py"}
-    ], 
+    ],
     "username": "testuser"
     }'''
 
-@mock.patch('preprocessor.file_getter.get_remote_scripts', side_effect=mock_get_scripts)
-@request_context("/job/1/start",1,
+
+@mock.patch('preprocessor.file_getter.get_remote_scripts',
+            side_effect=mock_get_scripts)
+@request_context("/job/1/start", 1,
                  data=patch_with_start_data,
                  content_type='application/json', method="POST")
-def test_patch_with_start(mock_get_scripts,app):
+def test_patch_with_start(mock_get_scripts, app):
     """
     test patching via the job/<job_id>/start API endpoint.
     Mock the functions to get the script from azure and copy to backend.
     """
     clear_and_recreate_tmp_dir()
-    
-    
-    
+
     result = JobStartApi().dispatch_request(1)
-    assert(result['status']==0)
+    assert(result['status'] == 0)
 
     filename_param_map = [
-        {"filename" : "input_script_1.py", "param" : "BAR"},
-        {"filename" : "input_script_2.py", "param" : "Bar"}
+        {"filename": "input_script_1.py", "param": "BAR"},
+        {"filename": "input_script_2.py", "param": "Bar"}
     ]
-    
-    for fp in filename_param_map:
-        patched_filename = os.path.join(TMP_PATCH_DIR,fp["filename"])
 
-        
+    for fp in filename_param_map:
+        patched_filename = os.path.join(TMP_PATCH_DIR, fp["filename"])
+
         assert(os.path.exists(patched_filename))
 
         with open(patched_filename, "r") as f:
