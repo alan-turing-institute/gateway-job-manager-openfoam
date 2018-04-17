@@ -28,18 +28,21 @@ def patch(parameters, template_dir):
         dir called "patched", where the patched scripts will go.
         """
         patched_dir = os.path.join(template_dir, 'patched')
+        raw_dir = os.path.join(template_dir, 'raw')
+
         if not os.path.exists(patched_dir):
            os.mkdir(patched_dir)
+
         ### need parameters in the form of one dictionary
         param_dict = consolidate_params(parameters)
 
         ### loop through all files in the input directory
-        for script in os.listdir(os.path.join(template_dir, 'raw')):
-            script_path = os.path.join(template_dir,script)
+        for script in os.listdir(raw_dir):
+            script_path = os.path.join(raw_dir, script)
             if os.path.isdir(script_path):
                 continue
             print("Will patch file %s" % script_path)
-            patched_path = os.path.join(patched_dir,script)
+            patched_path = os.path.join(patched_dir, script)
             template = MakoTemplate(filename=script_path,
                                     input_encoding='utf-8')
 
