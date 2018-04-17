@@ -91,8 +91,9 @@ patch_with_start_data = '''{
     ],
     "scripts":
     [
-        {"source":"input_script_1.py","destination":"input_script_1.py"},
-        {"source" : "input_script_2.py","destination": "input_script_2.py"}
+        {"source":"input_script_1.py","destination":"input_script_1.py","patch":true,"action":""},
+        {"source" : "input_script_2.py","destination": "input_script_2.py","patch":true,"action":""},
+        {"source" : "input_script_3.py","destination": "input_script_3.py","patch":false,"action":""}
     ],
     "username": "testuser"
     }'''

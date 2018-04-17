@@ -22,7 +22,8 @@ job_field_args = {
 job_script_args = {
     'source': fields.Str(required=True),
     'destination' : fields.Str(required=True),
-    'action' : fields.Str(required=False)
+    'patch' : fields.Boolean(required=True),
+    'action' : fields.Str(required=True)
 }
 
 
