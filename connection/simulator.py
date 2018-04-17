@@ -1,6 +1,5 @@
 import os
 import posixpath
-from mako.template import Template as MakoTemplate
 
 from connection.ssh import SSH
 import re
