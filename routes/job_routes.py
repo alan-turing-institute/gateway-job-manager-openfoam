@@ -11,7 +11,7 @@ from webargs.flaskparser import use_kwargs
 import requests
 import os
 
-from preprocessor import preprocessor,file_getter, patcher
+from preprocessor import preprocessor, file_getter, patcher
 
 
 job_field_args = {
@@ -52,8 +52,8 @@ class JobStartApi(Resource):
         """
         print("About to start job %s" % job_id)
 
-        return_code = preprocessor.get_patch_and_copy(scripts,fields_to_patch) 
-            
+        return_code = preprocessor.get_patch_and_copy(scripts,fields_to_patch)
+
         return {
             "status" : return_code
         }

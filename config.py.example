@@ -12,13 +12,13 @@ class DevelopmentConfig(BaseConfig):
     SIM_ROOT='/home/testuser'
     AZURE_ACCOUNT_NAME='INSERT_ACCOUNT_NAME_HERE'
     AZURE_ACCOUNT_KEY='INSERT_ACCOUNT_KEY_HERE'
-    TMP_SCRIPT_DIR="/tmp/"
+    TMP_DIR="/tmp/"
 
-    
+
 class TestingConfig(BaseConfig):
     """Testing configuration"""
     TESTING = True
-    TMP_SCRIPT_DIR="tests/tmp/"
+    TMP_DIR="tests/tmp/"
 
 class ProductionConfig(BaseConfig):
     """Production configuration"""

@@ -20,26 +20,26 @@ def consolidate_params(parameter_list):
             pass
         return output_dict
 
-def patch(template_dir, parameters):
+def patch(parameters, template_dir):
         """
         Method to apply a patch based on a supplied template file.
         Loop through all files in a given directory.
         Create (if not already there) a subdirectory of the supplied
         dir called "patched", where the patched scripts will go.
         """
-        patched_dir = os.path.join(template_dir,"patched")
+        patched_dir = os.path.join(template_dir, 'patched')
         if not os.path.exists(patched_dir):
            os.mkdir(patched_dir)
         ### need parameters in the form of one dictionary
         param_dict = consolidate_params(parameters)
 
         ### loop through all files in the input directory
-        for script in os.listdir(template_dir):
+        for script in os.listdir(os.path.join(template_dir, 'raw')):
             script_path = os.path.join(template_dir,script)
             if os.path.isdir(script_path):
                 continue
             print("Will patch file %s" % script_path)
-            patched_path = os.path.join(patched_dir,script)            
+            patched_path = os.path.join(patched_dir,script)
             template = MakoTemplate(filename=script_path,
                                     input_encoding='utf-8')
 
