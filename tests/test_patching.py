@@ -118,23 +118,27 @@ def test_patch_with_start(mock_get_remote_scripts, app):
         {"filename": "input_script_2.py", "param": "Bar"}
     ]
 
-    # for fp in filename_param_map:
-    #     patched_filename = os.path.join(TMP_PATCH_DIR, fp["filename"])
-    #
-    #     assert(os.path.exists(patched_filename))
-    #
-    #     with open(patched_filename, "r") as f:
-    #         content = f.readlines()
-    #
-    #     outcome = False
-    #     for line in content:
-    #         patched = re.search(r"^[\w]+[\s]+=[\s]+([\S]+)[\s]+", line)
-    #         if patched:
-    #             patched_value = patched.group(1)
-    #             if patched_value == fp["param"]:
-    #                 outcome = True
-    #             break
-    #     assert(outcome)
+    job_dirs = os.listdir(TMP_DIR)
+    assert(len(job_dirs) == 1)
+    job_dir = os.path.join(TMP_DIR, job_dirs[0])
+    patched_dir = os.path.join(job_dir,"patched")
+    for fp in filename_param_map:
+         patched_filename = os.path.join(patched_dir, fp["filename"])
+    
+         assert(os.path.exists(patched_filename))
+    
+         with open(patched_filename, "r") as f:
+             content = f.readlines()
+    
+         outcome = False
+         for line in content:
+             patched = re.search(r"^[\w]+[\s]+=[\s]+([\S]+)[\s]+", line)
+             if patched:
+                 patched_value = patched.group(1)
+                 if patched_value == fp["param"]:
+                     outcome = True
+                 break
+         assert(outcome)
 
 
 # def test_tempfile():
