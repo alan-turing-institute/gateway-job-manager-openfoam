@@ -33,42 +33,46 @@ def clear_and_recreate_tmp_dir():
     os.mkdir(TMP_DIR)
 
 
-# def test_simple_patch():
-#     """
-#     use mako to replace "foo" with "bar" in input_script_0.py
-#     """
-#
-#     clear_and_recreate_tmp_dir()
-#
-#     base_filename = "input_script_0.py"
-#     source_script = os.path.join(RESOURCE_DIR, base_filename)
-#     assert(os.path.exists(source_script))
-#
-#     input_script = os.path.join(TMP_DIR, base_filename)
-#     shutil.copy(source_script, input_script)
-#
-#     patched_filename = os.path.join(TMP_PATCH_DIR, base_filename)
-#
-# #  parameters to patch
-#     parameter_dict = [{"name": "foo", "value": "bar"}]
-#
-# #  do the patching
-#     patcher.patch(parameter_dict, TMP_DIR)
-#
-#     assert(os.path.exists(patched_filename))
-#
-#     with open(patched_filename, "r") as f:
-#         content = f.readlines()
-#
-#     outcome = False
-#     for line in content:
-#         patched = re.search(r"^[\w]+[\s]+=[\s]+([\S]+)[\s]+", line)
-#         if patched:
-#             patched_value = patched.group(1)
-#             if patched_value == 'bar':
-#                 outcome = True
-#             break
-#     assert(outcome)
+def test_simple_patch():
+    """
+    use mako to replace "foo" with "bar" in input_script_0.py
+    """
+
+    clear_and_recreate_tmp_dir()
+
+    base_filename = "input_script_0.py"
+    source_script = os.path.join(RESOURCE_DIR, base_filename)
+    assert(os.path.exists(source_script))
+    raw_dir = os.path.join(TMP_DIR, "raw")
+    if not os.path.exists(raw_dir):
+        os.mkdir(raw_dir)
+    input_script = os.path.join(raw_dir, base_filename)
+    shutil.copy(source_script, input_script)
+
+    patch_dir = os.path.join(TMP_DIR, "patched")
+
+    patched_filename = os.path.join(patch_dir, base_filename)
+
+ #  parameters to patch
+    parameter_dict = [{"name": "foo", "value": "bar"}]
+
+ #  do the patching
+    patcher.patch(parameter_dict, TMP_DIR)
+    assert(os.path.exists(patch_dir))
+    assert(os.path.exists(patched_filename))
+
+    with open(patched_filename, "r") as f:
+        content = f.readlines()
+
+    outcome = False
+    for line in content:
+        patched = re.search(r"^[\w]+[\s]+=[\s]+([\S]+)[\s]+", line)
+        if patched:
+            patched_value = patched.group(1)
+            if patched_value == 'bar':
+                outcome = True
+            break
+    assert(outcome)
 
 
 def mock_get_remote_scripts(scripts, job_dir_raw):
