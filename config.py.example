@@ -18,7 +18,8 @@ class DevelopmentConfig(BaseConfig):
 class TestingConfig(BaseConfig):
     """Testing configuration"""
     TESTING = True
-    TMP_DIR="tests/tmp/"
+    RESOURCE_DIR = 'tests/resources'
+    TMP_DIR = 'tests/tmp'
 
 class ProductionConfig(BaseConfig):
     """Production configuration"""
