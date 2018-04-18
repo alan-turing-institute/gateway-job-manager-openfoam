@@ -20,6 +20,8 @@ class TestingConfig(BaseConfig):
     TESTING = True
     RESOURCE_DIR = 'tests/resources'
     TMP_DIR = 'tests/tmp'
+    AZURE_ACCOUNT_NAME='INSERT_ACCOUNT_NAME_HERE'
+    AZURE_ACCOUNT_KEY='INSERT_ACCOUNT_KEY_HERE'
 
 class ProductionConfig(BaseConfig):
     """Production configuration"""
