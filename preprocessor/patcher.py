@@ -20,7 +20,7 @@ def consolidate_params(parameter_list):
             pass
         return output_dict
 
-def patch(parameters, template_dir):
+def patch(scripts, parameters, template_dir):
         """
         Method to apply a patch based on a supplied template file.
         Loop through all files in a given directory.
@@ -37,8 +37,9 @@ def patch(parameters, template_dir):
         param_dict = consolidate_params(parameters)
 
         ### loop through all files in the input directory
-        for script in os.listdir(raw_dir):
-            script_path = os.path.join(raw_dir, script)
+        for script in scripts:
+            script_name = os.path.basename(script["source"])
+            script_path = os.path.join(raw_dir, script_name)
             if os.path.isdir(script_path):
                 continue
             print("Will patch file %s" % script_path)
