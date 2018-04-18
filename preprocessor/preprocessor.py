@@ -26,7 +26,7 @@ def get_patch_and_copy(scripts, parameters):
 
     file_getter.get_remote_scripts(scripts, job_dir_raw)
 
-    patcher.patch(scripts, parameters, job_dir)
+    patcher.patch_all_scripts(scripts, parameters, job_dir)
 
     # TODO call to copy goes here
 

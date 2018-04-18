@@ -20,37 +20,51 @@ def consolidate_params(parameter_list):
             pass
         return output_dict
 
-def patch(scripts, parameters, template_dir):
+def patch_all_scripts(scripts, parameters, tmp_dir):
         """
         Method to apply a patch based on a supplied template file.
         Loop through all files in a given directory.
         Create (if not already there) a subdirectory of the supplied
         dir called "patched", where the patched scripts will go.
         """
-        patched_dir = os.path.join(template_dir, 'patched')
-        raw_dir = os.path.join(template_dir, 'raw')
+        raw_dir = os.path.join(tmp_dir, 'raw')
+        patched_basedir = os.path.join(tmp_dir, 'patched')
 
-        if not os.path.exists(patched_dir):
-           os.mkdir(patched_dir)
+        if not os.path.exists(patched_basedir):
+           os.mkdir(patched_basedir)
 
         ### need parameters in the form of one dictionary
         param_dict = consolidate_params(parameters)
 
         ### loop through all files in the input directory
         for script in scripts:
-            script_name = os.path.basename(script["source"])
-            script_path = os.path.join(raw_dir, script_name)
-            if os.path.isdir(script_path):
-                continue
-            print("Will patch file %s" % script_path)
-            patched_path = os.path.join(patched_dir, script)
-            template = MakoTemplate(filename=script_path,
-                                    input_encoding='utf-8')
 
-            try:
-                with open(patched_path, "w") as f:
-                    f.write(template.render(parameters=param_dict))
-            except(KeyError):
-                ### nothing to patch, copy the file anyway.
-                shutil.copy(script_path, patched_path)
-                pass
+            raw_path = os.path.join(raw_dir, script["source"])
+
+            patched_path = os.path.join(patched_basedir, script["destination"])
+            # "destination" make contain subdirectories - need to create dir structure
+            # if it's not already there..
+            patched_dir = os.path.dirname(patched_path)
+            os.makedirs(patched_dir,exist_ok=True)
+
+            # patch or copy
+            if script["patch"]:
+                patch_one_script(raw_path, patched_path, param_dict)
+            else:
+                shutil.copy(raw_path, patched_path)
+        return True
+
+
+def patch_one_script(raw_path, patched_path, parameters):
+        """
+        Apply mako dict to one script.
+        """
+        template = MakoTemplate(filename=raw_path,
+                                input_encoding='utf-8')
+        try:
+            with open(patched_path, "w") as f:
+                f.write(template.render(parameters=parameters))
+        except(KeyError):
+        # nothing to patch, copy the file anyway.
+            shutil.copy(script_path, patched_path)
+        return True
