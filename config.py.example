@@ -5,27 +5,27 @@ class BaseConfig:
 
 class DevelopmentConfig(BaseConfig):
     """Development configuration"""
-    SSH_USERNAME='testuser'
-    SSH_HOSTNAME='simulator-openfoam'
-    SSH_PORT=22
-    SSH_PRIVATE_KEY_PATH='keys/simulator_key'
+    SSH_USERNAME = 'testuser'
+    SSH_HOSTNAME = 'simulator-openfoam'
+    SSH_PORT = 22
+    SSH_PRIVATE_KEY_PATH = 'keys/simulator_key'
     LOCAL_TMP_DIR = "/tmp"
     SIM_TMP_DIR = "/tmp"
-    SIM_ROOT='/home/testuser'
-    AZURE_ACCOUNT_NAME='INSERT_ACCOUNT_NAME_HERE'
-    AZURE_ACCOUNT_KEY='INSERT_ACCOUNT_KEY_HERE'
+    SIM_ROOT = '/home/testuser'
+    AZURE_ACCOUNT_NAME = 'azure_account_name'
+    AZURE_ACCOUNT_KEY = 'azure_account_key'
     
 class TestingConfig(BaseConfig):
     """Testing configuration"""
     TESTING = True
-    SSH_USERNAME='testuser'
-    SSH_HOSTNAME='simulator-openfoam'
-    SSH_PORT=22
-    SSH_PRIVATE_KEY_PATH='keys/simulator_key'
+    SSH_USERNAME ='testuser'
+    SSH_HOSTNAME ='simulator-openfoam'
+    SSH_PORT = 22
+    SSH_PRIVATE_KEY_PATH = 'keys/simulator_key'
     LOCAL_TMP_DIR = "tests/tmp"
     SIM_TMP_DIR = "/tmp"
-    AZURE_ACCOUNT_NAME='INSERT_ACCOUNT_NAME_HERE'
-    AZURE_ACCOUNT_KEY='INSERT_ACCOUNT_KEY_HERE'
+    AZURE_ACCOUNT_NAME = 'azure_account_name'
+    AZURE_ACCOUNT_KEY = 'azure_account_key'
     RESOURCE_DIR = "tests/resources"
 
 class ProductionConfig(BaseConfig):
