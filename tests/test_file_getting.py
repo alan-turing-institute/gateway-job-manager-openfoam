@@ -17,7 +17,7 @@ from .fixtures import demo_app as app
 from connection.cloud import Azure_Credentials
 from preprocessor import file_getter
 
-TMP_DIR = app().config['TMP_DIR']
+TMP_DIR = app().config['LOCAL_TMP_DIR']
 
 def clear_and_recreate_tmp_dir():
     """

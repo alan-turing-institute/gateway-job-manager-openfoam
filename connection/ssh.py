@@ -37,8 +37,6 @@ class SSH():
             pkey = paramiko.RSAKey.from_private_key_file(
                 credentials.private_key_path)
 
-        print(credentials.ssh_hostname)
-
         self.client.connect(
             hostname=credentials.ssh_hostname,
             port=credentials.ssh_port,

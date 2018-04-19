@@ -52,7 +52,7 @@ class JobStartApi(Resource):
         """
         print("About to start job %s" % job_id)
 
-        return_code = preprocessor.get_patch_and_copy(scripts,fields_to_patch)
+        return_code = preprocessor.get_patch_and_copy(scripts, fields_to_patch, job_id)
 
         return {
             "status" : return_code

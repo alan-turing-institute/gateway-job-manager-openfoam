@@ -22,7 +22,7 @@ from routes import JobStartApi
 
 
 RESOURCE_DIR = app().config['RESOURCE_DIR']
-TMP_DIR = app().config['TMP_DIR']
+TMP_DIR = app().config['LOCAL_TMP_DIR']
 
 DAMBREAK_DIR = os.path.join(RESOURCE_DIR,"damBreak")
 
@@ -83,7 +83,7 @@ def mock_get_remote_scripts(scripts, job_dir_raw):
     Bypass getting scripts from azure - just copy from local
     RESOURCE_DIR to tmp_dir instead
     """
-
+    
     for script in scripts:
         source_filepath = os.path.join(RESOURCE_DIR, script["source"])
         source_dir = os.path.dirname(script["source"])
