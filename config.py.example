@@ -1,3 +1,5 @@
+import os
+
 class BaseConfig:
     """Base configuration"""
     TESTING = False
@@ -12,8 +14,8 @@ class DevelopmentConfig(BaseConfig):
     LOCAL_TMP_DIR = "/tmp"
     SIM_TMP_DIR = "/tmp"
     SIM_ROOT = '/home/testuser'
-    AZURE_ACCOUNT_NAME = 'azure_account_name'
-    AZURE_ACCOUNT_KEY = 'azure_account_key'
+    AZURE_ACCOUNT_NAME = os.environ['azure_account_name']
+    AZURE_ACCOUNT_KEY = os.environ['azure_account_key']
     
 class TestingConfig(BaseConfig):
     """Testing configuration"""
@@ -24,8 +26,8 @@ class TestingConfig(BaseConfig):
     SSH_PRIVATE_KEY_PATH = 'keys/simulator_key'
     LOCAL_TMP_DIR = "tests/tmp"
     SIM_TMP_DIR = "/tmp"
-    AZURE_ACCOUNT_NAME = 'azure_account_name'
-    AZURE_ACCOUNT_KEY = 'azure_account_key'
+    AZURE_ACCOUNT_NAME = os.environ['azure_account_name']
+    AZURE_ACCOUNT_KEY = os.environ['azure_account_key']
     RESOURCE_DIR = "tests/resources"
 
 class ProductionConfig(BaseConfig):
