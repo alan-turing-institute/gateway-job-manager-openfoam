@@ -38,7 +38,6 @@ def copy_scripts_to_backend(source_basedir,destination_basedir):
     The destination_basedir specified as an argument here 
     should already have job_id appended to it.
     """
-    
     ssh_connection = get_simulator_connection()
     # remove the base directory (containing job_id) on the remote system,
     # in the unlikely event that it already exists

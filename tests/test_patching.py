@@ -93,7 +93,14 @@ def mock_get_remote_scripts(scripts, job_dir_raw):
             os.makedirs(os.path.join(job_dir_raw,source_dir),exist_ok=True)
         raw_filepath = os.path.join(job_dir_raw, script["source"])
         shutil.copy(source_filepath, raw_filepath)
-    return 0
+    return True
+
+def mock_copy_scripts_to_backend(source_dir, dest_dir):
+    """
+    Bypass copying the scripts to the remote machine.
+    """
+    return True
+
 
 patch_with_start_data = '''{
     "fields_to_patch":
@@ -110,7 +117,8 @@ patch_with_start_data = '''{
     "username": "testuser"
     }'''
 
-
+#@mock.patch('preprocessor.file_putter.copy_scripts_to_backend',
+#            side_effect=mock_copy_scripts_to_backend)
 @mock.patch('preprocessor.file_getter.get_remote_scripts',
             side_effect=mock_get_remote_scripts)
 @request_context("/job/1/start", 1,
@@ -122,9 +130,9 @@ def test_patch_with_start(mock_get_remote_scripts, app):
     Mock the functions to get the script from azure and copy to backend.
     """
     clear_and_recreate_tmp_dir()
-
-    result = JobStartApi().dispatch_request(1)
-    assert(result['status'] == 0)
+    with mock.patch('preprocessor.file_putter.copy_scripts_to_backend') as mock_copy_scripts_to_backend:
+        result = JobStartApi().dispatch_request(1)
+        assert(result['status'] == 0)
 
     filename_param_map = [
         {"filename": "input_script_1.py", "param": "BAR"},
@@ -180,8 +188,9 @@ def test_patch_with_directory_structure(mock_get_remote_scripts, app):
     """
     clear_and_recreate_tmp_dir()
 
-    result = JobStartApi().dispatch_request(1)
-    assert(result['status'] == 0)
+    with mock.patch('preprocessor.file_putter.copy_scripts_to_backend') as mock_copy_scripts_to_backend:
+        result = JobStartApi().dispatch_request(1)
+        assert(result['status'] == 0)
     job_dirs = os.listdir(TMP_DIR)
     assert(len(job_dirs) == 1)
     job_dir = os.path.join(TMP_DIR, job_dirs[0])
