@@ -9,7 +9,7 @@ from preprocessor import file_getter, patcher, file_putter
 import tempfile
 
 from flask import current_app
-
+    
 def preprocess(scripts, parameters, job_id):
     """
     get scripts from remote storage to a local disk (keeping the same filename)
@@ -41,13 +41,31 @@ def preprocess(scripts, parameters, job_id):
     return 0
 
 
-def execute_script(scripts):
+def execute_actions(scripts, job_id):
     """
     Perform the 'action' on relevant scripts on the backend.
     """
     sim_connection = file_putter.get_simulator_connection()
+    status = 0
     for script in scripts:
         script_location = os.path.join(current_app.config["SIM_TMP_DIR"],
+                                       str(job_id),
                                        script["destination"])
+        script_dir = os.path.dirname(script_location)
+        script_name = os.path.basename(script_location)
         if script["action"] == "RUN":
-            out,err,status = sim_connection._run_remote_command('bash '+script_location)
+            out,err,status = sim_connection._run_remote_command('cd '+script_dir+'; bash '+script_name)
+    return status
+
+
+def start_job(scripts, parameters, job_id):
+    """
+    Called by the job/<jobid>/start API endpoint.
+    Get the scripts onto the simulator via the preprocess method,
+    and perform their actions.
+    """
+    status_code = preprocess(scripts, parameters, job_id)
+    if status_code != 0:
+        return status_code
+    status_code = execute_actions(scripts, job_id)
+    return status_code

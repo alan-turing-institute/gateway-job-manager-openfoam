@@ -12,7 +12,8 @@ import requests
 import os
 
 from manager import job_starter
-#xsfrom preprocessor import preprocessor, file_getter, patcher
+
+
 
 
 job_field_args = {
@@ -53,12 +54,11 @@ class JobStartApi(Resource):
         """
         print("About to start job %s" % job_id)
 
-        return_code = job_starter.preprocess(scripts, fields_to_patch, job_id)
-
+        return_code = job_starter.start_job(scripts, fields_to_patch, job_id)
+        
         return {
             "status" : return_code
         }
-
 
 
 class JobStatusApi(Resource):
@@ -71,7 +71,8 @@ class JobStatusApi(Resource):
         """
         update the status of this job - do a PATCH request to middleware api
         """
-        r = requests.patch(MIDDLEWARE_API_BASE+"job/"+str(job_id),json={"job_status":job_status})
+        middleware_url = current_app.config["MIDDLEWARE_API_BASE"]
+        r = requests.patch(middleware_url+"job/"+str(job_id),json={"job_status":job_status})
         return r.status_code
 
     def get(self,job_id):
