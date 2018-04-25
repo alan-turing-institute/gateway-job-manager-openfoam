@@ -162,7 +162,7 @@ def test_patch_with_start(mock_get_remote_scripts, app):
          assert(outcome)
 
          
-realistic_patch_data = '''
+dir_patch_data = '''
     {
       "scripts" :
         [
@@ -179,7 +179,7 @@ realistic_patch_data = '''
 @mock.patch('preprocessor.file_getter.get_remote_scripts',
             side_effect=mock_get_remote_scripts)
 @request_context("/job/1/start", 1,
-                 data=realistic_patch_data,
+                 data=dir_patch_data,
                  content_type='application/json', method="POST")
 def test_patch_with_directory_structure(mock_get_remote_scripts, app):
     """
@@ -205,6 +205,59 @@ def test_patch_with_directory_structure(mock_get_remote_scripts, app):
         if patched:
             patched_value = patched.group(1)
             if patched_value == "BAR":
+                outcome = True
+            break
+    assert(outcome)
+
+
+openfoam_patch_data = '''
+    {
+      "scripts" :
+        [
+          {"source" : "damBreak/constant/transportProperties", 
+           "destination" : "constant/transportProperties", 
+           "action": "", "patch" : true}
+        ],
+      "fields_to_patch" : 
+        [ 
+          {"name": "Water_density", "value": "1000"}, 
+          {"name": "Water_viscosity", "value": "0.00001"}, 
+          {"name": "Water_surface_tension", "value": "0.07"}, 
+          {"name": "Air_density", "value": "512"}, 
+          {"name": "Air_viscosity", "value": "0.00001"}
+        ],
+       "username" : "testuser"
+    }
+'''
+@mock.patch('preprocessor.file_getter.get_remote_scripts',
+            side_effect=mock_get_remote_scripts)
+@request_context("/job/1/start", 1,
+                 data=openfoam_patch_data,
+                 content_type='application/json', method="POST")
+def test_patch_openfoam(mock_get_remote_scripts, app):
+    """
+    Test we can patch a more complicated directory structure
+    and also have the correct path structure in the patched output dir
+    """
+    clear_and_recreate_tmp_dir()
+
+    with mock.patch('preprocessor.file_putter.copy_scripts_to_backend') as mock_copy_scripts_to_backend:
+        result = JobStartApi().dispatch_request(1)
+        assert(result['status'] == 0)
+    job_dirs = os.listdir(TMP_DIR)
+    assert(len(job_dirs) == 1)
+    job_dir = os.path.join(TMP_DIR, job_dirs[0])
+    patched_dir = os.path.join(job_dir,"patched")
+    patched_filename = os.path.join(patched_dir, "constant","transportProperties")
+    with open(patched_filename, "r") as f:
+        content = f.readlines()
+    
+    outcome = False
+    for line in content:
+        patched = re.search(r"^sigma[\s]+([\.\d]+)\;", line)
+        if patched:
+            patched_value = patched.group(1)
+            if patched_value == "0.07":
                 outcome = True
             break
     assert(outcome)

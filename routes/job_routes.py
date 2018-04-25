@@ -13,9 +13,6 @@ import os
 
 from manager import job_starter
 
-
-
-
 job_field_args = {
     'name': fields.Str(required=True),
     'value': fields.Str(required=True)
