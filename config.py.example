@@ -20,7 +20,8 @@ class DevelopmentConfig(BaseConfig):
     SIM_ROOT = '/home/testuser'
     AZURE_ACCOUNT_NAME=os.environ['azure_account_name']
     AZURE_ACCOUNT_KEY=os.environ['azure_account_key']
-    
+    AZURE_OUTPUT_CONTAINTER='dambreakoutput'
+
 class TestingConfig(BaseConfig):
     """Testing configuration"""
     TESTING = True
@@ -33,6 +34,7 @@ class TestingConfig(BaseConfig):
     AZURE_ACCOUNT_NAME= os.environ['azure_account_name']
     AZURE_ACCOUNT_KEY= os.environ['azure_account_key']
     RESOURCE_DIR = "tests/resources"
+    AZURE_OUTPUT_CONTAINTER='dambreakoutput'
 
 class ProductionConfig(BaseConfig):
     """Production configuration"""
