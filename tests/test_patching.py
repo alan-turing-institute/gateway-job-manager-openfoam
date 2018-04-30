@@ -18,7 +18,6 @@ from .fixtures import demo_app as app  # flake8: noqa
 
 from .mock_functions import mock_get_remote_scripts, mock_copy_scripts_to_backend
 
-
 from preprocessor import patcher
 from routes import JobStartApi
 

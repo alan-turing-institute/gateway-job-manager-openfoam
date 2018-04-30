@@ -11,6 +11,7 @@ from .fixtures import demo_app as app  # flake8: noqa
 RESOURCE_DIR = app().config['RESOURCE_DIR']
 TMP_DIR = app().config['LOCAL_TMP_DIR']
 
+    
 def mock_get_remote_scripts(scripts, job_dir_raw):
     """
     Bypass getting scripts from azure - just copy from local

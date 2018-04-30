@@ -11,7 +11,7 @@ from webargs.flaskparser import use_kwargs
 import requests
 import os
 
-from manager import job_starter
+from manager import job_starter, job_output
 
 job_field_args = {
     'name': fields.Str(required=True),
@@ -71,7 +71,7 @@ class JobStatusApi(Resource):
         update the status of this job - do a PATCH request to middleware api
         """
         middleware_url = current_app.config["MIDDLEWARE_API_BASE"]
-        r = requests.patch(middleware_url+"job/"+str(job_id),json={"job_status":job_status})
+        r = requests.put(middleware_url+"job/"+str(job_id),json={"status":job_status})
         return r.status_code
 
     def get(self,job_id):
@@ -86,4 +86,8 @@ class JobOutputApi(Resource):
     """
 
     def get(self, job_id):
-        return "This is an access token for job "+str(job_id)
+        """
+        get an azure sas token
+        """
+        return {"token" :job_output.get_sas_token(job_id)}, 200
+

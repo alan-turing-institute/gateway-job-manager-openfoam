@@ -59,8 +59,8 @@ def execute_action(scripts, job_id, action):
         if script["action"] == action:
             if action == "RUN":
                 run_cmd = 'cd '+script_dir+'; bash ./'+script_name
-                out, err, status = sim_connection._run_remote_command('echo "'+run_cmd+'" > /tmp/cmd.txt; echo `whoami` >> /tmp/cmd.txt')
-                out, err, status = sim_connection._run_remote_command('source /home/testuser/.bashrc; export FOO=BAR; echo $FOO > /tmp/bar.txt ; cp ~/.bashrc /tmp/bashtest ; '+run_cmd+' >& /tmp/output.txt')
+#                out, err, status = sim_connection._run_remote_command('source /opt/openfoam5/etc/bashrc; echo $WM_PROJECT_DIR > /tmp/projdirenv; '+run_cmd+' >& /tmp/output.txt')
+                out, err, status = sim_connection._run_remote_command(run_cmd+' >& /tmp/output.txt')                
                 break
     return out, err, status
 

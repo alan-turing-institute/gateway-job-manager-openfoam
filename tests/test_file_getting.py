@@ -14,7 +14,7 @@ import unittest.mock as mock
 
 from .fixtures import demo_app as app  
 
-from connection.cloud import Azure_Credentials
+from connection.cloud import AzureCredentials
 from preprocessor import file_getter
 
 TMP_DIR = app().config['LOCAL_TMP_DIR']
