@@ -4,11 +4,11 @@ preprocess - get remote scripts, patch them, and copy to final location
 """
 
 import os
+from flask import current_app
 
 from preprocessor import file_getter, patcher, file_putter
 import tempfile
 
-from flask import current_app
     
 def preprocess(scripts, parameters, job_id):
     """
@@ -34,28 +34,35 @@ def preprocess(scripts, parameters, job_id):
     if not patched_ok:
         return -1
     # copy to simulator
-    destination_dir = os.path.join(current_app.config["SIM_TMP_DIR"], str(job_id))
-    copied_ok = file_putter.copy_scripts_to_backend(job_dir_patch, destination_dir) 
+    destination_dir = os.path.join(current_app.config["SIM_TMP_DIR"],
+                                   str(job_id))
+    copied_ok = file_putter.copy_scripts_to_backend(job_dir_patch,
+                                                    destination_dir) 
     if not copied_ok:
         return -1
     return 0
 
 
-def execute_actions(scripts, job_id):
+
+def execute_action(scripts, job_id, action):
     """
     Perform the 'action' on relevant scripts on the backend.
     """
     sim_connection = file_putter.get_simulator_connection()
-    status = 0
+    out, err, status = '', '', 0
     for script in scripts:
         script_location = os.path.join(current_app.config["SIM_TMP_DIR"],
                                        str(job_id),
                                        script["destination"])
         script_dir = os.path.dirname(script_location)
         script_name = os.path.basename(script_location)
-        if script["action"] == "RUN":
-            out,err,status = sim_connection._run_remote_command('cd '+script_dir+'; bash '+script_name)
-    return status
+        if script["action"] == action:
+            if action == "RUN":
+                run_cmd = 'cd '+script_dir+'; bash ./'+script_name
+                out, err, status = sim_connection._run_remote_command('echo "'+run_cmd+'" > /tmp/cmd.txt; echo `whoami` >> /tmp/cmd.txt')
+                out, err, status = sim_connection._run_remote_command('source /home/testuser/.bashrc; export FOO=BAR; echo $FOO > /tmp/bar.txt ; cp ~/.bashrc /tmp/bashtest ; '+run_cmd+' >& /tmp/output.txt')
+                break
+    return out, err, status
 
 
 def start_job(scripts, parameters, job_id):
@@ -67,5 +74,5 @@ def start_job(scripts, parameters, job_id):
     status_code = preprocess(scripts, parameters, job_id)
     if status_code != 0:
         return status_code
-    status_code = execute_actions(scripts, job_id)
-    return status_code
+    out, err, status_code = execute_action(scripts, job_id, "RUN")
+    return out, err, status_code

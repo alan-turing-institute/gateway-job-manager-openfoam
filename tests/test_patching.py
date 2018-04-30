@@ -11,11 +11,13 @@ import tempfile
 
 from pytest import raises
 from werkzeug.exceptions import HTTPException
+import unittest.mock as mock
 
 from .decorators import request_context
 from .fixtures import demo_app as app  # flake8: noqa
 
-import unittest.mock as mock
+from .mock_functions import mock_get_remote_scripts, mock_copy_scripts_to_backend
+
 
 from preprocessor import patcher
 from routes import JobStartApi
@@ -76,31 +78,6 @@ def test_simple_patch():
                 outcome = True
             break
     assert(outcome)
-
-
-def mock_get_remote_scripts(scripts, job_dir_raw):
-    """
-    Bypass getting scripts from azure - just copy from local
-    RESOURCE_DIR to tmp_dir instead
-    """
-    
-    for script in scripts:
-        source_filepath = os.path.join(RESOURCE_DIR, script["source"])
-        source_dir = os.path.dirname(script["source"])
-        source_basename = os.path.basename(script["source"])
-        print("source_basename %s source_dir %s" %(source_basename, source_dir))
-        if (len(source_dir) > 0):
-            os.makedirs(os.path.join(job_dir_raw,source_dir),exist_ok=True)
-        raw_filepath = os.path.join(job_dir_raw, script["source"])
-        shutil.copy(source_filepath, raw_filepath)
-    return True
-
-def mock_copy_scripts_to_backend(source_dir, dest_dir):
-    """
-    Bypass copying the scripts to the remote machine.
-    """
-    return True
-
 
 patch_with_start_data = '''{
     "fields_to_patch":

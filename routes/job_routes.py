@@ -51,9 +51,11 @@ class JobStartApi(Resource):
         """
         print("About to start job %s" % job_id)
 
-        return_code = job_starter.start_job(scripts, fields_to_patch, job_id)
+        out, err, return_code = job_starter.start_job(scripts, fields_to_patch, job_id)
         
         return {
+            "stdout" : out,
+            "stderr" : err,
             "status" : return_code
         }
 

@@ -64,5 +64,5 @@ def patch_one_script(raw_path, patched_path, parameters):
                 f.write(template.render(parameters=parameters))
         except(KeyError):
         # nothing to patch, copy the file anyway.
-            shutil.copy(script_path, patched_path)
+            shutil.copy(raw_path, patched_path)
         return True
