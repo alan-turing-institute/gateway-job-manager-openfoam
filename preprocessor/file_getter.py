@@ -12,7 +12,7 @@ def get_azure_credentials():
     """
     use the config's azure account_name and account_key
     """
-    return Azure_Credentials(current_app.config)
+    return AzureCredentials(current_app.config)
 
 
 def get_relative_path_from_uri(source_uri, acc_name):
