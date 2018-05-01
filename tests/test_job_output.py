@@ -31,7 +31,7 @@ def test_get_token(app):
         result, status = JobStatusApi().dispatch_request(1)
         assert(status==200)
         assert(result["token"] is not None)
-        assert(result["container_name"] is not None)
+        assert(result["container"] is not None)
         
 
         
