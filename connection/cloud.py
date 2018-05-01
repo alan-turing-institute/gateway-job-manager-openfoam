@@ -28,6 +28,7 @@ class AzureBlobService():
     Class to interface with Azure blob storage.
     The function retrieve_blob expects arguments (blob_name,container_name)
     The function get_sas_token expects arguments (blob_name,container_name)
+    The function create_container expects (container_name)
     """
 
     def __init__(self, credentials):
@@ -61,5 +62,10 @@ class AzureBlobService():
             protocol='https',
             start=arrow.utcnow().shift(hours=-1).datetime,
             expiry=arrow.utcnow().shift(days=1).datetime)
-
         return token
+
+    def create_container(self, container_name):
+        """
+        Create a blob storage container.
+        """
+        self.block_blob_service.create_container(container_name)

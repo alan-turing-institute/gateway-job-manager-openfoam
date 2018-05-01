@@ -68,26 +68,37 @@ class JobStatusApi(Resource):
     @use_kwargs(job_status_args, locations=('json',))
     def patch(self, job_id, job_status):
         """
-        update the status of this job - do a PATCH request to middleware api
+        update the status of this job - do a PATCH request to middleware api.
+        If the status is CLEANUP, send the backend the info it needs to 
+        upload the job output to azure.
         """
         middleware_url = current_app.config["MIDDLEWARE_API_BASE"]
-        r = requests.put(middleware_url+"/job/"+str(job_id),json={"status":job_status})
-        return r.status_code
+        r = requests.put('{}/job/{}/status'.format(middleware_url,str(job_id)),
+                         json={"status":job_status})
 
+        if job_status.upper() == "CLEANUP":
+            acc, container, token = job_output.prepare_output_storage(job_id)
+            
+            return {"token": token,
+                    "container": container,
+                    "acc-name": acc}, 200            
+        else:
+            return r.content, r.status_code
+        
     def get(self,job_id):
         """
+        Dummy endpoint for testing..
         return the status of this job.
         """
         return "Job %s is OK" % job_id
 
+    
 class JobOutputApi(Resource):
     """
-    Endpoint to retrieve the output of a job once it has finished.  Return an access token
+    Endpoint to retrieve the output of a job once it has finished.  
     """
 
     def get(self, job_id):
-        """
-        get an azure sas token
-        """
-        return {"token" :job_output.get_sas_token(job_id)}, 200
+        pass
+
 
