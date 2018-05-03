@@ -51,11 +51,10 @@ class JobStartApi(Resource):
         """
         print("About to start job %s" % job_id)
 
-        out, err, return_code = job_starter.start_job(scripts, fields_to_patch, job_id)
+        message, return_code = job_starter.start_job(scripts, fields_to_patch, job_id)
         
         return {
-            "stdout" : out,
-            "stderr" : err,
+            "data" : message,
             "status" : return_code
         }
 
@@ -74,16 +73,20 @@ class JobStatusApi(Resource):
         """
         middleware_url = current_app.config["MIDDLEWARE_API_BASE"]
         r = requests.put('{}/job/{}/status'.format(middleware_url,str(job_id)),
-                         json={"status":job_status})
+                         json={"job_status":job_status})
 
-        if job_status.upper() == "CLEANUP":
+        if job_status.upper() == 'FINALIZING':
             acc, container, token = job_output.prepare_output_storage(job_id)
             
-            return {"token": token,
-                    "container": container,
-                    "acc-name": acc}, 200            
+            return {"status": 200,
+                    "data": {"token": token,
+                             "container": container,
+                             "acc-name": acc}
+                    }
         else:
-            return r.content, r.status_code
+            return {"status": r.status_code,
+                    "data": r.content
+            }
         
     def get(self,job_id):
         """

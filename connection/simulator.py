@@ -36,7 +36,7 @@ class SimulatorConnection():
             raise(ServiceUnavailable(
                 description="Unable to connect to backend compute resource"))
 
-    def _run_remote_command(self, command, debug=False):
+    def run_remote_command(self, command, debug=False):
         """
         Method to run a given command remotely via SSH
         Shouldnt be called directly.
@@ -48,7 +48,7 @@ class SimulatorConnection():
         return out, err, exit_code
 
 
-    def _copy_file_to_simulator(self, source, destination_dir,debug=False):
+    def copy_file_to_simulator(self, source, destination_dir,debug=False):
         """
         Copy a file from host to simulator.
         """

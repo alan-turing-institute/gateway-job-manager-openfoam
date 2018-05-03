@@ -50,7 +50,7 @@ def patch_all_scripts(scripts, parameters, job_dir):
                 patch_one_script(raw_path, patched_path, param_dict)
             else:
                 shutil.copy(raw_path, patched_path)
-        return True
+        return True, 'All scripts patched.'
 
 
 def patch_one_script(raw_path, patched_path, parameters):

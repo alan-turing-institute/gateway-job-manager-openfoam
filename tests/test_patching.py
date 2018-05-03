@@ -18,6 +18,7 @@ from .fixtures import demo_app as app  # flake8: noqa
 
 from .mock_functions import mock_get_remote_scripts, mock_copy_scripts_to_backend
 
+import preprocessor
 from preprocessor import patcher
 from routes import JobStartApi
 
@@ -106,9 +107,12 @@ def test_patch_with_start(mock_get_remote_scripts, app):
     Mock the functions to get the script from azure and copy to backend.
     """
     clear_and_recreate_tmp_dir()
-    with mock.patch('preprocessor.file_putter.copy_scripts_to_backend') as mock_copy_scripts_to_backend:
-        result = JobStartApi().dispatch_request(1)
-        assert(result['status'] == 0)
+
+
+    preprocessor.file_putter.copy_scripts_to_backend = \
+                            mock.MagicMock(return_value=(True,''))
+    result = JobStartApi().dispatch_request(1)
+    assert(result['status'] == 0)
 
     filename_param_map = [
         {"filename": "input_script_1.py", "param": "BAR"},
@@ -164,9 +168,10 @@ def test_patch_with_directory_structure(mock_get_remote_scripts, app):
     """
     clear_and_recreate_tmp_dir()
 
-    with mock.patch('preprocessor.file_putter.copy_scripts_to_backend') as mock_copy_scripts_to_backend:
-        result = JobStartApi().dispatch_request(1)
-        assert(result['status'] == 0)
+    preprocessor.file_putter.copy_scripts_to_backend = \
+                            mock.MagicMock(return_value=(True,''))
+    result = JobStartApi().dispatch_request(1)
+    assert(result['status'] == 0)
     job_dirs = os.listdir(TMP_DIR)
     assert(len(job_dirs) == 1)
     job_dir = os.path.join(TMP_DIR, job_dirs[0])
@@ -217,9 +222,10 @@ def test_patch_openfoam(mock_get_remote_scripts, app):
     """
     clear_and_recreate_tmp_dir()
 
-    with mock.patch('preprocessor.file_putter.copy_scripts_to_backend') as mock_copy_scripts_to_backend:
-        result = JobStartApi().dispatch_request(1)
-        assert(result['status'] == 0)
+    preprocessor.file_putter.copy_scripts_to_backend = \
+                                    mock.MagicMock(return_value=(True,''))
+    result = JobStartApi().dispatch_request(1)
+    assert(result['status'] == 0)
     job_dirs = os.listdir(TMP_DIR)
     assert(len(job_dirs) == 1)
     job_dir = os.path.join(TMP_DIR, job_dirs[0])

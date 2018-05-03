@@ -26,21 +26,24 @@ def preprocess(scripts, parameters, job_id):
     os.makedirs(job_dir_patch, exist_ok=True)
     
     # get the scripts from cloud storage
-    fetched_ok = file_getter.get_remote_scripts(scripts, job_dir_raw)
-    if not fetched_ok:
-        return -1
+    fetched_ok, message = file_getter.get_remote_scripts(scripts,
+                                                         job_dir_raw)
+    if not fetched_ok:        
+        return 'problem fetching scripts: {}'.format(message), -1
     # patch the scripts using Mako
-    patched_ok = patcher.patch_all_scripts(scripts, parameters, job_dir)
+    patched_ok, message = patcher.patch_all_scripts(scripts,
+                                                    parameters,
+                                                    job_dir)
     if not patched_ok:
-        return -1
+        return 'problem patching scripts: {}'.format(message), -1
     # copy to simulator
-    destination_dir = os.path.join(current_app.config["SIM_TMP_DIR"],
-                                   str(job_id))
-    copied_ok = file_putter.copy_scripts_to_backend(job_dir_patch,
-                                                    destination_dir) 
+    destination_dir = current_app.config["SIM_TMP_DIR"]
+    copied_ok, message = file_putter.copy_scripts_to_backend(job_dir_patch,
+                                                             destination_dir,
+                                                             job_id) 
     if not copied_ok:
-        return -1
-    return 0
+        return 'problem copying files: {}'.format(message), -1
+    return 'preprocessing succeeded', 0
 
 
 
@@ -49,7 +52,7 @@ def execute_action(scripts, job_id, action):
     Perform the 'action' on relevant scripts on the backend.
     """
     sim_connection = file_putter.get_simulator_connection()
-    out, err, status = '', '', 0
+    message, status = 'No actions executed yet', 0
     for script in scripts:
         script_location = os.path.join(current_app.config["SIM_TMP_DIR"],
                                        str(job_id),
@@ -59,10 +62,12 @@ def execute_action(scripts, job_id, action):
         if script["action"] == action:
             if action == "RUN":
                 run_cmd = 'cd '+script_dir+'; bash ./'+script_name
-#                out, err, status = sim_connection._run_remote_command('source /opt/openfoam5/etc/bashrc; echo $WM_PROJECT_DIR > /tmp/projdirenv; '+run_cmd+' >& /tmp/output.txt')
-                out, err, status = sim_connection._run_remote_command(run_cmd+' >& /tmp/output.txt')                
+                out, err, status = sim_connection.run_remote_command(
+                    run_cmd+' >& /tmp/output.txt'
+                )
+                message = 'stdout: {}\n stderr: {}'.format(out,err)
                 break
-    return out, err, status
+    return message, status
 
 
 def start_job(scripts, parameters, job_id):
@@ -71,8 +76,8 @@ def start_job(scripts, parameters, job_id):
     Get the scripts onto the simulator via the preprocess method,
     and perform their actions.
     """
-    status_code = preprocess(scripts, parameters, job_id)
+    message, status_code = preprocess(scripts, parameters, job_id)
     if status_code != 0:
-        return status_code
-    out, err, status_code = execute_action(scripts, job_id, "RUN")
-    return out, err, status_code
+        return message, status_code
+    message, status_code = execute_action(scripts, job_id, "RUN")
+    return message, status_code

@@ -25,13 +25,10 @@ def mock_put(target):
 @request_context("/job/1/status",
                  method="PATCH",
                  content_type='application/json',
-                 data='{"job_status":"CLEANUP"}')
+                 data='{"job_status":"FINALIZING"}')
 def test_get_token(app):
     with mock.patch('requests.put') as MockPut:
-        result, status = JobStatusApi().dispatch_request(1)
-        assert(status==200)
-        assert(result["token"] is not None)
-        assert(result["container"] is not None)
-        
-
-        
+        result = JobStatusApi().dispatch_request(1)
+        assert(result["status"]==200)
+        assert(result["data"]["token"] is not None)
+        assert(result["data"]["container"] is not None)

@@ -8,6 +8,7 @@ import arrow
 import re
 import json
 from azure.storage.blob import BlockBlobService, PublicAccess, ContainerPermissions
+from azure.common import AzureMissingResourceHttpError
 from werkzeug.exceptions import ServiceUnavailable
 
 
@@ -46,11 +47,17 @@ class AzureBlobService():
         use the BlockBlobService to retrieve file from Azure, and place in destination folder.
         """
         local_filename = blob_name.split("/")[-1]
-        self.block_blob_service.get_blob_to_path(container_name,
-                                                 blob_name,
-                                                 os.path.join(destination,local_filename))
-        
+        try:
+            self.block_blob_service.get_blob_to_path(container_name,
+                                                     blob_name,
+                                                     os.path.join(destination,
+                                                                  local_filename))
+            return True, 'retrieved script OK'
+        except(AzureMissingResourceHttpError):
+            return False, 'failed to retrieve {} from {}'.format(blob_name,
+                                                                 container_name)
 
+        
     def sas_token(self, container_name, token_duration=1):
         """
         Create token that expires in n days
