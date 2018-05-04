@@ -29,7 +29,7 @@ def check_create_blob_container(service):
     """
     # create the output container    
     output_container = current_app.config["AZURE_OUTPUT_CONTAINER"]
-    if not service.exists(output_container):
+    if not service.check_container_exists(output_container):
         service.create_container(output_container)
     return output_container
 

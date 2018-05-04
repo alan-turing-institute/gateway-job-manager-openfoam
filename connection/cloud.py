@@ -76,3 +76,10 @@ class AzureBlobService():
         Create a blob storage container.
         """
         self.block_blob_service.create_container(container_name)
+
+        
+    def check_container_exists(self, container_name):
+        """
+        See if a container already exists for this account name.
+        """
+        return self.block_blob_service.exists(container_name)

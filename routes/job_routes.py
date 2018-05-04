@@ -76,7 +76,7 @@ class JobStatusApi(Resource):
                          json={"job_status":job_status})
 
         if job_status.upper() == 'FINALIZING':
-            acc, container, token = job_output.prepare_output_storage(job_id)
+            acc, container, token = job_output.prepare_output_storage()
             
             return {"status": 200,
                     "data": {"token": token,
