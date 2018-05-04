@@ -243,4 +243,43 @@ def test_patch_openfoam(mock_get_remote_scripts, app):
                 outcome = True
             break
     assert(outcome)
+
     
+jobid_patch_data = '''
+    {
+      "scripts" :
+        [
+          {"source" : "damBreak/job_id", 
+           "destination" : "damBreak/job_id", 
+           "action": "", "patch" : true}
+        ],
+      "fields_to_patch" : 
+        [ 
+        ],
+       "username" : "testuser"
+    }
+'''
+@mock.patch('preprocessor.file_getter.get_remote_scripts',
+            side_effect=mock_get_remote_scripts)
+@request_context("/job/1357/start", 1,
+                 data=jobid_patch_data,
+                 content_type='application/json', method="POST")
+def test_patch_jobid(mock_get_remote_scripts, app):
+    """
+    Test that if we have a file called job_id with a mako parameter 'job_id'
+    in, it should automatically get the job's job_id patched in
+    """
+    clear_and_recreate_tmp_dir()
+
+    preprocessor.file_putter.copy_scripts_to_backend = \
+                                    mock.MagicMock(return_value=(True,''))
+    result = JobStartApi().dispatch_request(1357)
+    assert(result['status'] == 0)
+    job_dirs = os.listdir(TMP_DIR)
+    assert(len(job_dirs) == 1)
+    job_dir = os.path.join(TMP_DIR, job_dirs[0])
+    patched_dir = os.path.join(job_dir,"patched")
+    patched_filename = os.path.join(patched_dir, "damBreak/job_id")
+    with open(patched_filename, "r") as f:
+        content = f.readlines()
+    assert(content[0].strip() == '1357')

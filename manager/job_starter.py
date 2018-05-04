@@ -15,7 +15,7 @@ def preprocess(scripts, parameters, job_id):
     get scripts from remote storage to a local disk (keeping the same filename)
     patch them (changing filename), and copy to final location.
     """
-
+    
     tmp_dir = current_app.config["LOCAL_TMP_DIR"]
     job_dir = os.path.join(tmp_dir, str(job_id))
     
@@ -33,7 +33,8 @@ def preprocess(scripts, parameters, job_id):
     # patch the scripts using Mako
     patched_ok, message = patcher.patch_all_scripts(scripts,
                                                     parameters,
-                                                    job_dir)
+                                                    job_dir,
+                                                    job_id)
     if not patched_ok:
         return 'problem patching scripts: {}'.format(message), -1
     # copy to simulator

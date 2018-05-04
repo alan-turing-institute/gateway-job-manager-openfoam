@@ -73,7 +73,7 @@ class JobStatusApi(Resource):
         """
         middleware_url = current_app.config["MIDDLEWARE_API_BASE"]
         r = requests.put('{}/job/{}/status'.format(middleware_url,str(job_id)),
-                         json={"job_status":job_status})
+                         json={"status":job_status})
 
         if job_status.upper() == 'FINALIZING':
             acc, container, token = job_output.prepare_output_storage()
@@ -85,7 +85,7 @@ class JobStatusApi(Resource):
                     }
         else:
             return {"status": r.status_code,
-                    "data": r.content
+                    "data": r.content.decode("utf-8")
             }
         
     def get(self,job_id):
