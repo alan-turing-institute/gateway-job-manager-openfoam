@@ -29,15 +29,6 @@ def verify_copy(copied_list, destination_dir, ssh_connection):
             return False, 'Did not find {}'.format(script)
     return True, "Files verified"
 
-
-def write_jobid_to_backend(connection, destination_dir, job_id):
-    """
-    Write a file called 'job_id' to the destination_dir on the backend
-    with the job_id in (will be used by the backend when returning job output)
-    """
-    cmd = 'echo {} > {}/job_id'.format(str(job_id),destination_dir)
-    out, err, status = connection.run_remote_command(cmd)
-    return (status == 0)
     
 def copy_scripts_to_backend(source_basedir,destination_basedir, job_id):
     """
@@ -76,11 +67,5 @@ def copy_scripts_to_backend(source_basedir,destination_basedir, job_id):
                                      ssh_connection)
     if not copied_ok:
         return copied_ok, 'Problem copying files to simulator: {}'.format(message)
-    # write a 'job_id' file containing the job_id
-    wrote_job_id = write_jobid_to_backend(ssh_connection,
-                                          destination_basedir,
-                                          job_id)
-    if not wrote_job_id:
-        return wrote_job_id, 'Problem writing job_id file to backend'
     # all OK
     return True, 'All files transferred successfully'

@@ -68,20 +68,27 @@ class JobStatusApi(Resource):
     def patch(self, job_id, job_status):
         """
         update the status of this job - do a PATCH request to middleware api.
-        If the status is CLEANUP, send the backend the info it needs to 
+        If the status is COMPLETED, send the middleware the output URI.
+        If the status is FINALIZING, send the backend the info it needs to 
         upload the job output to azure.
         """
         middleware_url = current_app.config["MIDDLEWARE_API_BASE"]
+        status_dict = {"status":job_status}
+        if job_status.upper() == "COMPLETED":
+            output_uri = job_output.get_output_uri(job_id)
+            status_dict["outputs"] = output_uri
         r = requests.put('{}/job/{}/status'.format(middleware_url,str(job_id)),
-                         json={"status":job_status})
+                         json=status_dict)
 
         if job_status.upper() == 'FINALIZING':
-            acc, container, token = job_output.prepare_output_storage()
-            
+            acc, con, tok, blob = job_output.prepare_output_storage()
+            blob_name = '{}/{}'.format(job_id,blob)
             return {"status": 200,
-                    "data": {"token": token,
-                             "container": container,
-                             "account": acc}
+                    "data": {"token": tok,
+                             "container": con,
+                             "account": acc,
+                             "blob": blob_name
+                             }
                     }
         else:
             return {"status": r.status_code,

@@ -19,7 +19,9 @@ def prepare_output_storage():
     azure_blob_service = AzureBlobService(azure_credentials)    
     container_name = check_create_blob_container(azure_blob_service)
     sas_token = get_sas_token(container_name, azure_blob_service)
-    return azure_credentials.account_name, container_name, sas_token
+    blob_basename = current_app.config["AZURE_BLOB_BASENAME"]
+    return azure_credentials.account_name, container_name, \
+        sas_token, blob_basename
 
 
 def check_create_blob_container(service):
@@ -40,3 +42,16 @@ def get_sas_token(container_name, service):
     """
     token = service.sas_token(container_name)
     return token
+
+
+def get_output_uri(job_id):
+    """
+    Construct the URI that will be passed back to the middleware
+    """
+    uri = 'https://{}.blob.core.windows.net/{}/{}/{}'.format(
+        current_app.config["AZURE_ACCOUNT_NAME"],
+        current_app.config["AZURE_OUTPUT_CONTAINER"],
+        str(job_id),
+        current_app.config["AZURE_BLOB_BASENAME"]
+    )
+    return uri
