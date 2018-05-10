@@ -81,7 +81,7 @@ class JobStatusApi(Resource):
             return {"status": 200,
                     "data": {"token": token,
                              "container": container,
-                             "acc-name": acc}
+                             "account": acc}
                     }
         else:
             return {"status": r.status_code,
