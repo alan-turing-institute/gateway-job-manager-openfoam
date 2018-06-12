@@ -58,19 +58,22 @@ class AzureBlobService():
                                                                  container_name)
 
         
-    def sas_token(self, container_name, token_duration=1):
+    def sas_token(self, container_name, token_duration=1, permissions="READ"):
         """
-        Create token that expires in n days
+        Create token that expires in n hours
         """
+        token_permission = ContainerPermissions.WRITE if permissions=="WRITE" \
+                           else ContainerPermissions.READ
         duration = token_duration # days
         token = self.block_blob_service.generate_container_shared_access_signature(
             container_name=container_name,
-            permission=self.container_permissions,
+            permission=token_permission,
             protocol='https',
             start=arrow.utcnow().shift(hours=-1).datetime,
-            expiry=arrow.utcnow().shift(days=1).datetime)
+            expiry=arrow.utcnow().shift(hours=token_duration).datetime)
         return token
 
+    
     def create_container(self, container_name):
         """
         Create a blob storage container.

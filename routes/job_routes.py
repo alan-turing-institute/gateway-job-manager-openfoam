@@ -74,13 +74,37 @@ class JobStatusApi(Resource):
         """
         middleware_url = current_app.config["MIDDLEWARE_API_BASE"]
         status_dict = {"status":job_status}
+        outputs = []
         if job_status.upper() == "COMPLETED":
-            output_uri = job_output.get_output_uri(job_id)
-            status_dict["outputs"] = output_uri
-        r = requests.put('{}/job/{}/status'.format(middleware_url,str(job_id)),
-                         json=status_dict)
-
-        if job_status.upper() == 'FINALIZING':
+            ### right now we only have one output, which is a zip file
+            job_outputs = job_output.get_outputs(job_id, with_sas=False)
+            for output_type, uri in job_outputs.items():
+                outputs.append({"job_id": job_id,
+                                "type": output_type,
+                                "destination_path": uri})
+            ### call the middleware's status api to update the status to "COMPLETED"    
+            r = requests.put('{}/job/{}/status'.format(middleware_url,str(job_id)),
+                             json=status_dict)
+            if r.status_code != 200:
+                return {
+                    "status": r.status_code,
+                    "message": "Error setting COMPLETED status."
+                }
+            ### now call the middleware's output api to add the output.
+            for output in outputs:
+                r = requests.post('{}/job/{}/output'.format(middleware_url,str(job_id)),
+                                  json=output)
+                if r.status_code != 200:
+                    return {
+                        "status": r.status_code,
+                        "message": "Error setting output."
+                    }
+            ### posted all outputs to middleware
+            return {
+                "status": 200,
+                "message": "successfully added outputs"
+            }
+        elif job_status.upper() == 'FINALIZING':
             acc, con, tok, blob = job_output.prepare_output_storage()
             blob_name = '{}/{}'.format(job_id,blob)
             return {"status": 200,
@@ -94,13 +118,6 @@ class JobStatusApi(Resource):
             return {"status": r.status_code,
                     "data": r.content.decode("utf-8")
             }
-        
-    def get(self,job_id):
-        """
-        Dummy endpoint for testing..
-        return the status of this job.
-        """
-        return "Job %s is OK" % job_id
 
     
 class JobOutputApi(Resource):
@@ -109,6 +126,16 @@ class JobOutputApi(Resource):
     """
 
     def get(self, job_id):
-        pass
+        """
+        Return the URL for the completed job, including a SAS token.
+        """
+        outputs = []
+        job_outputs = job_output.get_outputs(job_id, with_sas=True)
+        for output_type, uri in job_outputs.items():
+            outputs.append({"job_id": job_id,
+                            "type": output_type,
+                            "destination_path": uri})
+        return outputs
+
 
 
