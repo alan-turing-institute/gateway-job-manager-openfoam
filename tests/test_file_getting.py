@@ -49,8 +49,8 @@ def test_get(mock_get_azure_credentials):
     clear_and_recreate_tmp_dir()
 
     scripts = [
-    {"source": "https://sgmiddleware.blob.core.windows.net/testopenfoam2/damBreak/0/alpha.water" },
-    {"source": "https://sgmiddleware.blob.core.windows.net/testopenfoam2/damBreak/Allrun"}
+    {"source": "https://sgmiddleware.blob.core.windows.net/openfoam-test-cases/damBreak/0/alpha.water.orig" },
+    {"source" : "https://sgmiddleware.blob.core.windows.net/openfoam-test-cases/damBreak/Allrun"}
     ]
 
     file_getter.get_remote_scripts(scripts, TMP_DIR)
@@ -59,7 +59,8 @@ def test_get(mock_get_azure_credentials):
 
     target_filenames = [
         os.path.join(TMP_DIR, "damBreak", "Allrun"),
-        os.path.join(TMP_DIR, "damBreak", "0","alpha.water")
+        os.path.join(TMP_DIR, "damBreak", "0","alpha.water.orig")
         ]
     for target in target_filenames:
+        pass
         assert(os.path.exists(target))
