@@ -49,6 +49,9 @@ def test_job_completed(app):
 
         status_url = join(MIDDLEWARE_URL, 'job/2/status')
         output_url = join(MIDDLEWARE_URL, 'job/2/output')
+
+
+
         m.put(status_url, json='mock')
         m.post(output_url, json='mock')
         result = JobStatusApi().dispatch_request(2)
