@@ -43,9 +43,10 @@ def test_get_token(app):
 def test_job_completed(app):
     with Mocker() as m:
         m.put(MIDDLEWARE_URL+"/job/2/status", json="data")
-        m.post(MIDDLEWARE_URL+"/job/2/output", json="data")
-        result = JobStatusApi().dispatch_request(2)
-        assert(result["status"]==200)
+        with Mocker() as m2:
+            m2.post(MIDDLEWARE_URL+"/job/2/output", json="data")
+            result = JobStatusApi().dispatch_request(2)
+            assert(result["status"]==200)
 
 
 @request_context("/job/3/output",
