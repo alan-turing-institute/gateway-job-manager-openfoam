@@ -1,6 +1,7 @@
 """
 Job routes for the job manager API.
 """
+from multiprocessing import Process
 
 from flask_restful import Resource, abort
 from flask import current_app
@@ -50,12 +51,13 @@ class JobStartApi(Resource):
         retrieve scripts, patch scripts, check return codes, tell backend to run the job.
         """
         print("About to start job %s" % job_id)
+        p = Process(target=job_starter.start_job,args=(scripts, fields_to_patch, job_id))
+        p.start()
+#        message, return_code = job_starter.start_job(scripts, fields_to_patch, job_id)
 
-        message, return_code = job_starter.start_job(scripts, fields_to_patch, job_id)
-        
         return {
-            "data" : message,
-            "status" : return_code
+            "data" : "Job submitting",#message,
+            "status" : 200
         }
 
 
@@ -69,7 +71,7 @@ class JobStatusApi(Resource):
         """
         update the status of this job - do a PATCH request to middleware api.
         If the status is COMPLETED, send the middleware the output URI.
-        If the status is FINALIZING, send the backend the info it needs to 
+        If the status is FINALIZING, send the backend the info it needs to
         upload the job output to azure.
         """
         middleware_url = current_app.config["MIDDLEWARE_API_BASE"]
@@ -80,9 +82,9 @@ class JobStatusApi(Resource):
             job_outputs = job_output.get_outputs(job_id, with_sas=False)
             for output_type, uri in job_outputs.items():
                 outputs.append({"job_id": job_id,
-                                "type": output_type,
+                                "output_type": output_type,
                                 "destination_path": uri})
-            ### call the middleware's status api to update the status to "COMPLETED"    
+            ### call the middleware's status api to update the status to "COMPLETED"
             r = requests.put('{}/job/{}/status'.format(middleware_url,str(job_id)),
                              json=status_dict)
             if r.status_code != 200:
@@ -119,10 +121,10 @@ class JobStatusApi(Resource):
                     "data": r.content.decode("utf-8")
             }
 
-    
+
 class JobOutputApi(Resource):
     """
-    Endpoint to retrieve the output of a job once it has finished.  
+    Endpoint to retrieve the output of a job once it has finished.
     """
 
     def get(self, job_id):
@@ -133,9 +135,6 @@ class JobOutputApi(Resource):
         job_outputs = job_output.get_outputs(job_id, with_sas=True)
         for output_type, uri in job_outputs.items():
             outputs.append({"job_id": job_id,
-                            "type": output_type,
+                            "output_type": output_type,
                             "destination_path": uri})
         return outputs
-
-
-

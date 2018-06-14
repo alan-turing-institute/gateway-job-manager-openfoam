@@ -8,6 +8,7 @@ import re
 import json
 import shutil
 import tempfile
+import time
 
 from pytest import raises
 from werkzeug.exceptions import HTTPException
@@ -112,8 +113,8 @@ def test_patch_with_start(mock_get_remote_scripts, app):
     preprocessor.file_putter.copy_scripts_to_backend = \
                             mock.MagicMock(return_value=(True,''))
     result = JobStartApi().dispatch_request(1)
-    assert(result['status'] == 0)
-
+    assert(result['status'] == 200)
+    time.sleep(5)
     filename_param_map = [
         {"filename": "input_script_1.py", "param": "BAR"},
         {"filename": "input_script_2.py", "param": "Bar"}
@@ -125,12 +126,12 @@ def test_patch_with_start(mock_get_remote_scripts, app):
     patched_dir = os.path.join(job_dir,"patched")
     for fp in filename_param_map:
          patched_filename = os.path.join(patched_dir, fp["filename"])
-    
+
          assert(os.path.exists(patched_filename))
-    
+
          with open(patched_filename, "r") as f:
              content = f.readlines()
-    
+
          outcome = False
          for line in content:
              patched = re.search(r"^[\w]+[\s]+=[\s]+([\S]+)[\s]+", line)
@@ -141,7 +142,7 @@ def test_patch_with_start(mock_get_remote_scripts, app):
                  break
          assert(outcome)
 
-         
+
 dir_patch_data = '''
     {
       "scripts" :
@@ -149,8 +150,8 @@ dir_patch_data = '''
           {"source" : "damBreak/Allrun", "destination" : "Allrun", "action": "START", "patch" : false},
           {"source" : "damBreak/0/U", "destination" : "0/U", "action": "", "patch" : true}
         ],
-      "fields_to_patch" : 
-        [ 
+      "fields_to_patch" :
+        [
           {"name" : "FOO", "value" : "BAR"}
         ],
        "username" : "testuser"
@@ -171,7 +172,8 @@ def test_patch_with_directory_structure(mock_get_remote_scripts, app):
     preprocessor.file_putter.copy_scripts_to_backend = \
                             mock.MagicMock(return_value=(True,''))
     result = JobStartApi().dispatch_request(1)
-    assert(result['status'] == 0)
+    assert(result['status'] == 200)
+    time.sleep(5)
     job_dirs = os.listdir(TMP_DIR)
     assert(len(job_dirs) == 1)
     job_dir = os.path.join(TMP_DIR, job_dirs[0])
@@ -179,7 +181,7 @@ def test_patch_with_directory_structure(mock_get_remote_scripts, app):
     patched_filename = os.path.join(patched_dir, "0","U")
     with open(patched_filename, "r") as f:
         content = f.readlines()
-    
+
     outcome = False
     for line in content:
         patched = re.search(r"^internalField[\s]+uniform[\s]+\(([\w]+)[\s]+0[\s]+0\)", line)
@@ -195,16 +197,16 @@ openfoam_patch_data = '''
     {
       "scripts" :
         [
-          {"source" : "damBreak/constant/transportProperties", 
-           "destination" : "constant/transportProperties", 
+          {"source" : "damBreak/constant/transportProperties",
+           "destination" : "constant/transportProperties",
            "action": "", "patch" : true}
         ],
-      "fields_to_patch" : 
-        [ 
-          {"name": "Water_density", "value": "1000"}, 
-          {"name": "Water_viscosity", "value": "0.00001"}, 
-          {"name": "Water_surface_tension", "value": "0.07"}, 
-          {"name": "Air_density", "value": "512"}, 
+      "fields_to_patch" :
+        [
+          {"name": "Water_density", "value": "1000"},
+          {"name": "Water_viscosity", "value": "0.00001"},
+          {"name": "Water_surface_tension", "value": "0.07"},
+          {"name": "Air_density", "value": "512"},
           {"name": "Air_viscosity", "value": "0.00001"}
         ],
        "username" : "testuser"
@@ -225,7 +227,8 @@ def test_patch_openfoam(mock_get_remote_scripts, app):
     preprocessor.file_putter.copy_scripts_to_backend = \
                                     mock.MagicMock(return_value=(True,''))
     result = JobStartApi().dispatch_request(1)
-    assert(result['status'] == 0)
+    assert(result['status'] == 200)
+    time.sleep(5)
     job_dirs = os.listdir(TMP_DIR)
     assert(len(job_dirs) == 1)
     job_dir = os.path.join(TMP_DIR, job_dirs[0])
@@ -233,7 +236,7 @@ def test_patch_openfoam(mock_get_remote_scripts, app):
     patched_filename = os.path.join(patched_dir, "constant","transportProperties")
     with open(patched_filename, "r") as f:
         content = f.readlines()
-    
+
     outcome = False
     for line in content:
         patched = re.search(r"^sigma[\s]+([\.\d]+)\;", line)
@@ -244,17 +247,17 @@ def test_patch_openfoam(mock_get_remote_scripts, app):
             break
     assert(outcome)
 
-    
+
 jobid_patch_data = '''
     {
       "scripts" :
         [
-          {"source" : "damBreak/job_id", 
-           "destination" : "damBreak/job_id", 
+          {"source" : "damBreak/job_id",
+           "destination" : "damBreak/job_id",
            "action": "", "patch" : true}
         ],
-      "fields_to_patch" : 
-        [ 
+      "fields_to_patch" :
+        [
         ],
        "username" : "testuser"
     }
@@ -274,7 +277,8 @@ def test_patch_jobid(mock_get_remote_scripts, app):
     preprocessor.file_putter.copy_scripts_to_backend = \
                                     mock.MagicMock(return_value=(True,''))
     result = JobStartApi().dispatch_request(1357)
-    assert(result['status'] == 0)
+    assert(result['status'] == 200)
+    time.sleep(5)
     job_dirs = os.listdir(TMP_DIR)
     assert(len(job_dirs) == 1)
     job_dir = os.path.join(TMP_DIR, job_dirs[0])
