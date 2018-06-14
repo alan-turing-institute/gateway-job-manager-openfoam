@@ -20,7 +20,7 @@ import manager
 from posixpath import join
 
 
-MIDDLEWARE_URL = 'http://gateway_middleware_1:5000'
+MIDDLEWARE_URL = 'http://middleware:5000'
 
 
 @request_context("/job/1/status",
