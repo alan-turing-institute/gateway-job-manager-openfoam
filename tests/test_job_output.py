@@ -8,7 +8,7 @@ import json
 import shutil
 import tempfile
 
-from pytest import raises
+from pytest import raises, mark
 import unittest.mock as mock
 from requests_mock import Mocker
 
@@ -16,6 +16,9 @@ from .decorators import request_context
 from .fixtures import demo_app as app  # flake8: noqa
 from routes import JobOutputApi, JobStatusApi
 import manager
+
+from posixpath import join
+
 
 MIDDLEWARE_URL = 'http://gateway_middleware_1:5000'
 
@@ -41,12 +44,15 @@ def test_get_token(app):
                  content_type='application/json',
                  data='{"job_status":"COMPLETED"}')
 def test_job_completed(app):
+
     with Mocker() as m:
-        m.put(MIDDLEWARE_URL+"/job/2/status", json="data")
-        with Mocker() as m2:
-            m2.post(MIDDLEWARE_URL+"/job/2/output", json="data")
-            result = JobStatusApi().dispatch_request(2)
-            assert(result["status"]==200)
+
+        status_url = join(MIDDLEWARE_URL, 'job/2/status')
+        output_url = join(MIDDLEWARE_URL, 'job/2/output')
+        m.put(status_url, json='mock')
+        m.post(output_url, json='mock')
+        result = JobStatusApi().dispatch_request(2)
+        assert(result["status"]==200)
 
 
 @request_context("/job/3/output",
