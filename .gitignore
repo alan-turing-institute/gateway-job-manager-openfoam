@@ -1,11 +1,14 @@
+# generated content
 simulator_key*
 simulator.env
 *.log
 *.pid
+tests/tmp/
 
 # python files
 __pycache__/
 .cache/
 .pytest_cache/
 
+# contain secrets
 config.py

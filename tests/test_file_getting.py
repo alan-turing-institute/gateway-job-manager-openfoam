@@ -12,7 +12,7 @@ import tempfile
 from pytest import raises
 import unittest.mock as mock
 
-from .fixtures import demo_app as app  
+from .fixtures import demo_app as app
 
 from connection.cloud import AzureCredentials
 from preprocessor import file_getter
@@ -27,7 +27,7 @@ def clear_and_recreate_tmp_dir():
         shutil.rmtree(TMP_DIR)
     os.mkdir(TMP_DIR)
 
-    
+
 def mock_get_azure_credentials():
     """
     return Azure_Credentials object without needing a current app
@@ -37,8 +37,8 @@ def mock_get_azure_credentials():
             self.account_name = config["AZURE_ACCOUNT_NAME"]
             self.account_key = config["AZURE_ACCOUNT_KEY"]
     return AzureTestCredentials(app().config)
-    
-    
+
+
 @mock.patch('preprocessor.file_getter.get_azure_credentials',
             side_effect=mock_get_azure_credentials)
 def test_get(mock_get_azure_credentials):
@@ -49,8 +49,8 @@ def test_get(mock_get_azure_credentials):
     clear_and_recreate_tmp_dir()
 
     scripts = [
-    {"source": "https://sgmiddleware.blob.core.windows.net/testopenfoamapi/damBreak/0/alpha.water" },
-    {"source" : "https://sgmiddleware.blob.core.windows.net/testopenfoamapi/damBreak/Allrun"}
+    {"source": "https://sgmiddleware.blob.core.windows.net/openfoam-test-cases/damBreak/0/alpha.water.orig" },
+    {"source" : "https://sgmiddleware.blob.core.windows.net/openfoam-test-cases/damBreak/Allrun"}
     ]
 
     file_getter.get_remote_scripts(scripts, TMP_DIR)
@@ -59,7 +59,8 @@ def test_get(mock_get_azure_credentials):
 
     target_filenames = [
         os.path.join(TMP_DIR, "damBreak", "Allrun"),
-        os.path.join(TMP_DIR, "damBreak", "0","alpha.water")
+        os.path.join(TMP_DIR, "damBreak", "0","alpha.water.orig")
         ]
     for target in target_filenames:
+        pass
         assert(os.path.exists(target))
