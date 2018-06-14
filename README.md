@@ -1,6 +1,6 @@
-# Job Manager: Blue
+# Job Manager: Openfoam
 
-Job manager for the Blue simulator
+Job manager for the Openfoam simulator
 
 ### Installation
 
@@ -13,32 +13,21 @@ docker-compose up
 
 ### Configuration
 
-Overwrite the configuration in `instance/config.cfg`. An example is provided in the file `instance/config.cfg.example`.
+Overwrite the configuration in `config.py`. An example is provided in the file `config.py.example`.
 
 
 This should be a standalone Flask app, that deals with running jobs on a
-specific backend (in this case Blue).
+specific backend (in this case Openfoam).
 
-Start by looking at what is there in science-gateway-middleware.
-`middleware/job_information_manager.py`
-seems to be a good starting point.
+Code that had previously been in science-gateway-middleware is now in 
+`tmp_reference/job_information_manager.py`
+and seems to be a good starting point.
 
-Create a new app.py and factory.py with a `create_app` function, and fill bits
-in as I come to understand them...
 
-To build the docker image (first time use, or after changing the code), from this directory:
-```
-docker build -t job-manager-blue .
-```
-
-To run the docker container:
-```
-docker run -it job-manager-blue
-```
-This should run the flask app, with the API at `0.0.0.0:5001`.
+This package creates a flask app, with the API at `0.0.0.0:5001`.
 
 This Flask app will communicate with the middleware passing HTTP verbs via the `requests` library.
-There are (temporary) example API calls in `example_requests_requests.py`
+There are (temporary) example API calls in `tmp_reference/example_requests_requests.py`
 
 
 The following routes are implemented:
@@ -68,7 +57,7 @@ data to be sent should be a json object with the following format:
 ```
 /job/<job_id>/status
 ```
-A PATCH request to this endpoint will trigger a PATCH request to the middleware, updating the status of a job.
+A PUT request to this endpoint will trigger a PUT request to the middleware, updating the status of a job.
 The data should be a json object `{"job_status": <status>}`.
 
 
