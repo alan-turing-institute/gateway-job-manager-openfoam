@@ -51,13 +51,13 @@ class JobStartApi(Resource):
         retrieve scripts, patch scripts, check return codes, tell backend to run the job.
         """
         print("About to start job %s" % job_id)
-        p = Process(target=job_starter.start_job,args=(scripts, fields_to_patch, job_id))
+        p = Process(target=job_starter.start_job, args=(scripts, fields_to_patch, job_id))
         p.start()
 #        message, return_code = job_starter.start_job(scripts, fields_to_patch, job_id)
 
         return {
             "data" : "Job submitting",#message,
-            "status" : 200
+            "status" : 200,
         }
 
 

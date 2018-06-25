@@ -9,6 +9,7 @@ from flask import current_app
 from preprocessor import file_getter, patcher, file_putter
 import tempfile
 
+import json
 
 def preprocess(scripts, parameters, job_id):
     """
@@ -52,24 +53,34 @@ def execute_action(scripts, job_id, action):
     """
     Perform the 'action' on relevant scripts on the backend.
     """
+
     sim_connection = file_putter.get_simulator_connection()
     message, status = 'No actions executed yet', 0
 
-    sim_root = current_app.config["SIM_TMP_DIR"]
+    job_root = os.path.join(
+        current_app.config["SIM_TMP_DIR"], str(job_id))
 
     for script in scripts:
-        script_path = os.path.join(sim_root,
-                                       str(job_id),
-                                       script["destination"])
-
-        script_dirname = os.path.dirname(script_path)
+        script_path = script["destination"]
         script_name = os.path.basename(script_path)
+        stem, _ = os.path.splitext(script_name)
 
         if script["action"] == action:
             if action == "RUN":
-                run_cmd = 'cd {} && bash ./{} >& log.{}'.format(
-                    sim_root, script_name, script_name
+
+                options = {
+                    'workdir': job_root,
+                    'script': script_path,
+                    'log': 'log.{}'.format(stem)
+                }
+
+                run_cmd = 'cd {workdir} && bash ./{script} > {log}'.format_map(
+                    options
                 )
+
+                with open('/tmp/log.interactive', 'a') as f:
+                    f.write(run_cmd)
+
                 out, err, status = sim_connection.run_remote_command(
                     run_cmd
                 )
@@ -85,7 +96,10 @@ def start_job(scripts, parameters, job_id):
     and perform their actions.
     """
     message, status_code = preprocess(scripts, parameters, job_id)
+
     if status_code != 0:
         return message, status_code
+
     message, status_code = execute_action(scripts, job_id, "RUN")
+
     return message, status_code
