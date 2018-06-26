@@ -34,7 +34,7 @@ job_start_args = {
 }
 
 job_status_args = {
-    "job_status" : fields.Str(required=True, strict=True)
+    "status" : fields.Str(required=True, strict=True)
 }
 
 
@@ -51,13 +51,13 @@ class JobStartApi(Resource):
         retrieve scripts, patch scripts, check return codes, tell backend to run the job.
         """
         print("About to start job %s" % job_id)
-        p = Process(target=job_starter.start_job,args=(scripts, fields_to_patch, job_id))
+        p = Process(target=job_starter.start_job, args=(scripts, fields_to_patch, job_id))
         p.start()
 #        message, return_code = job_starter.start_job(scripts, fields_to_patch, job_id)
 
         return {
             "data" : "Job submitting",#message,
-            "status" : 200
+            "status" : 200,
         }
 
 
@@ -67,7 +67,7 @@ class JobStatusApi(Resource):
     """
 
     @use_kwargs(job_status_args, locations=('json',))
-    def patch(self, job_id, job_status):
+    def patch(self, job_id, status):
         """
         update the status of this job - do a PATCH request to middleware api.
         If the status is COMPLETED, send the middleware the output URI.
@@ -75,9 +75,9 @@ class JobStatusApi(Resource):
         upload the job output to azure.
         """
         middleware_url = current_app.config["MIDDLEWARE_API_BASE"]
-        status_dict = {"status":job_status}
+        status_dict = {"status": status}
         outputs = []
-        if job_status.upper() == "COMPLETED":
+        if status.upper() == "COMPLETED":
             ### right now we only have one output, which is a zip file
             job_outputs = job_output.get_outputs(job_id, with_sas=False)
             for output_type, uri in job_outputs.items():
@@ -106,7 +106,7 @@ class JobStatusApi(Resource):
                 "status": 200,
                 "message": "successfully added outputs"
             }
-        elif job_status.upper() == 'FINALIZING':
+        elif status.upper() == 'FINALIZING':
             acc, con, tok, blob = job_output.prepare_output_storage()
             blob_name = '{}/{}'.format(job_id,blob)
             return {"status": 200,
@@ -117,6 +117,8 @@ class JobStatusApi(Resource):
                              }
                     }
         else:
+            r = requests.put('{}/job/{}/status'.format(middleware_url, str(job_id)),
+                    json=status_dict)
             return {"status": r.status_code,
                     "data": r.content.decode("utf-8")
             }

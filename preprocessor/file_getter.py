@@ -46,6 +46,7 @@ def get_remote_scripts(scripts, destination_dir):
     acc_name = azure_credentials.account_name
     blob_retriever = AzureBlobService(azure_credentials)
     retrieved_ok, message = True, 'no scripts retrieved so far'
+
     for script in scripts:
         source_uri = script["source"]
         blob_name, container_name = get_relative_path_from_uri(source_uri,
@@ -55,7 +56,7 @@ def get_remote_scripts(scripts, destination_dir):
         blob_relative_dir = os.path.dirname(blob_name)
         local_filepath = os.path.join(destination_dir, blob_relative_dir)
         os.makedirs(local_filepath, exist_ok=True)
-        
+
         retrieved_ok, message = blob_retriever.retrieve_blob(blob_name,
                                                              container_name,
                                                              local_filepath)
@@ -64,4 +65,5 @@ def get_remote_scripts(scripts, destination_dir):
         # modify the script dictionary (dicts are mutable) to replace the source uri
         # with just the relative path.  This way the patcher will be able to find it.
         script["source"] = blob_name
+
     return retrieved_ok, message

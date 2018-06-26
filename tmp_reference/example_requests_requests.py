@@ -17,7 +17,7 @@ r=requests.patch("http://localhost:5001/job/123/status",json={"job_status" : "Su
 
 print r.text
 
-r=requests.post("http://localhost:5001/job/123/start", json={"fields_to_patch": [],"scripts": [{"source": "https://sgmiddleware.blob.core.windows.net/testopenfoamapi/status_updater.sh", "destination" : "dummy_scripts/status_updater.sh","action": "RUN", "patch": False}],"username" : "testuser"})
+r=requests.post("http://localhost:5001/job/123/start", json={"fields_to_patch": [],"scripts": [{"source": "https://simulate.blob.core.windows.net/testopenfoamapi/status_updater.sh", "destination" : "dummy_scripts/status_updater.sh","action": "RUN", "patch": False}],"username" : "testuser"})
 
 
 ###### CREATE NEW JOB IN MIDDLEWARE, FROM CASE 1:
