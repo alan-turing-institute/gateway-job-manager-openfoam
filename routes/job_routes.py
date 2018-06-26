@@ -75,7 +75,7 @@ class JobStatusApi(Resource):
         upload the job output to azure.
         """
         middleware_url = current_app.config["MIDDLEWARE_API_BASE"]
-        status_dict = {"status":job_status}
+        status_dict = {"status": job_status}
         outputs = []
         if job_status.upper() == "COMPLETED":
             ### right now we only have one output, which is a zip file
@@ -117,6 +117,8 @@ class JobStatusApi(Resource):
                              }
                     }
         else:
+            r = requests.put('{}/job/{}/status'.format(middleware_url, str(job_id)),
+                    json=status_dict)
             return {"status": r.status_code,
                     "data": r.content.decode("utf-8")
             }
