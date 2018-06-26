@@ -26,7 +26,7 @@ MIDDLEWARE_URL = 'http://middleware:5000'
 @request_context("/job/1/status",
                  method="PATCH",
                  content_type='application/json',
-                 data='{"job_status":"FINALIZING"}')
+                 data='{"status":"FINALIZING"}')
 def test_get_token(app):
     with Mocker() as m:
         m.put(MIDDLEWARE_URL+"/job/1/status", json="data")
@@ -42,7 +42,7 @@ def test_get_token(app):
 @request_context("/job/2/status",
                  method="PATCH",
                  content_type='application/json',
-                 data='{"job_status":"COMPLETED"}')
+                 data='{"status":"COMPLETED"}')
 def test_job_completed(app):
 
     with Mocker() as m:

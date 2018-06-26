@@ -19,7 +19,7 @@ Overwrite the configuration in `config.py`. An example is provided in the file `
 This should be a standalone Flask app, that deals with running jobs on a
 specific backend (in this case Openfoam).
 
-Code that had previously been in science-gateway-middleware is now in 
+Code that had previously been in science-gateway-middleware is now in
 `tmp_reference/job_information_manager.py`
 and seems to be a good starting point.
 
@@ -34,7 +34,7 @@ The following routes are implemented:
 ```
 /job/job_id/start
 ```
-a POST on this endpoint will start a job with id=job_id.  The 
+a POST on this endpoint will start a job with id=job_id.  The
 data to be sent should be a json object with the following format:
 ```
 {"fields_to_patch": [
@@ -58,13 +58,10 @@ data to be sent should be a json object with the following format:
 /job/<job_id>/status
 ```
 A PUT request to this endpoint will trigger a PUT request to the middleware, updating the status of a job.
-The data should be a json object `{"job_status": <status>}`.
+The data should be a json object `{"status": <status>}`.
 
 
 ```
 /job/<job_id>/output
 ```
 A GET request to this endpoint will return an access token allowing retrieval of the job output.
-
-
-
