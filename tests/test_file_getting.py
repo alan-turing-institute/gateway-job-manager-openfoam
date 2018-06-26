@@ -49,8 +49,8 @@ def test_get(mock_get_azure_credentials):
     clear_and_recreate_tmp_dir()
 
     scripts = [
-        {"source": "https://sgmiddleware.blob.core.windows.net/openfoam-test-cases/damBreak/0/alpha.water.orig" },
-        {"source" : "https://sgmiddleware.blob.core.windows.net/openfoam-test-cases/damBreak/Allrun"}
+        {"source": "https://simulate.blob.core.windows.net/openfoam-test-cases/damBreak/0/alpha.water.orig" },
+        {"source" : "https://simulate.blob.core.windows.net/openfoam-test-cases/damBreak/Allrun"}
     ]
 
     file_getter.get_remote_scripts(scripts, TMP_DIR)

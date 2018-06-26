@@ -4,7 +4,7 @@ JOB_ID=$(cat bin/job_id)
 JOB_STORAGE_TOKEN=$(cat bin/job_storage_token)
 PBS_JOB_ID=$(cat bin/pbs_job_id)
 
-ACCOUNT='sgmiddleware'
+ACCOUNT='simulate'
 CONTAINER='openfoam'
 BLOB_STEM_NAME=$JOB_ID
 
