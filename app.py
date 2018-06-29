@@ -16,7 +16,6 @@ config_mode = os.getenv('FLASK_CONFIGURATION', 'development')
 
 # read general config from JSON
 config_fname = 'config.{}.json'.format(config_mode.lower())
-assert Path(config_fname).isfile()
 app.config.from_json(config_fname)
 
 # read storage config from environment
