@@ -13,7 +13,7 @@ docker-compose up
 
 ### Configuration
 
-Overwrite the configuration in `config.py`. An example is provided in the file `config.py.example`.
+Overwrite the configuration in `config.development.json`. An example is provided in the file `config.example.json`.
 
 
 This should be a standalone Flask app, that deals with running jobs on a

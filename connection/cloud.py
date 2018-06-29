@@ -1,5 +1,5 @@
 """
-Upload and retrieve blobs from Azure 
+Upload and retrieve blobs from Azure
 """
 
 import os
@@ -20,10 +20,10 @@ class AzureCredentials():
         """
         Azure storage account name and key.
         """
-        self.account_name = config.get('AZURE_ACCOUNT_NAME')
-        self.account_key = config.get('AZURE_ACCOUNT_KEY')
+        self.account_name = config.get('STORAGE_ACCOUNT_NAME')
+        self.account_key = config.get('STORAGE_ACCOUNT_KEY')
 
-    
+
 class AzureBlobService():
     """
     Class to interface with Azure blob storage.
@@ -40,7 +40,7 @@ class AzureBlobService():
         self.container_permissions = ContainerPermissions(read=True, write=True)
         self.block_blob_service = BlockBlobService(account_name=self.credentials.account_name,
                                                    account_key=self.credentials.account_key)
-        
+
 
     def retrieve_blob(self,blob_name,container_name,destination="/tmp/"):
         """
@@ -57,7 +57,7 @@ class AzureBlobService():
             return False, 'failed to retrieve {} from {}'.format(blob_name,
                                                                  container_name)
 
-        
+
     def sas_token(self, container_name, token_duration=1, permissions="READ"):
         """
         Create token that expires in n hours
@@ -73,14 +73,14 @@ class AzureBlobService():
             expiry=arrow.utcnow().shift(hours=token_duration).datetime)
         return token
 
-    
+
     def create_container(self, container_name):
         """
         Create a blob storage container.
         """
         self.block_blob_service.create_container(container_name)
 
-        
+
     def check_container_exists(self, container_name):
         """
         See if a container already exists for this account name.
