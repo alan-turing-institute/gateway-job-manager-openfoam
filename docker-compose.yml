@@ -10,4 +10,5 @@ services:
     env_file:
       - ./keys/simulator.env
     environment:
-      - FLASK_CONFIGURATION=default
+      - FLASK_CONFIGURATION=development
+      - ENV_FLASK_APP=app.py
