@@ -4,36 +4,24 @@ The main entry point for this flask app
 """
 
 import os
+from pathlib import Path
 from flask import Flask
 from flask_restful import Api
 from flask_cors import CORS
 
 from routes import setup_routes
 
-config = {
-    "development": "config.DevelopmentConfig",
-    "testing": "config.TestingConfig",
-    "production": "config.ProductionConfig",
-    "default": "config.DevelopmentConfig"
-}
+app = Flask(__name__)
+config_mode = os.getenv('FLASK_CONFIGURATION', 'development')
 
-def configure_app(app):
-    config_name = os.getenv('FLASK_CONFIGURATION', 'default')
-    app.config.from_object(config[config_name])
-    app.config.from_pyfile('config.cfg', silent=True)
+# read general config from JSON
+config_fname = 'config.{}.json'.format(config_mode.lower())
+assert Path(config_fname).isfile()
+app.config.from_json(config_fname)
 
-app = Flask(__name__, instance_relative_config=True)
-configure_app(app)
-
-#### TMP - SHOULDNT NEED THIS!!
-
-for k,v in app.config.items():
-    try:
-        os.environ[k] = v
-    except:
-        pass
-
-#################
+# read storage config from environment
+app.config['STORAGE_ACCOUNT_NAME'] = os.getenv('STORAGE_ACCOUNT_NAME', '')
+app.config['STORAGE_ACCOUNT_KEY'] = os.getenv('STORAGE_ACCOUNT_KEY', '')
 
 api = Api(app)
 CORS(app, resources={r'/*': {'origins': '*'}})

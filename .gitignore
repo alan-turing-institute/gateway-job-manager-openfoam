@@ -5,10 +5,10 @@ simulator.env
 *.pid
 tests/tmp/
 
-# python files
+# python content
 __pycache__/
 .cache/
 .pytest_cache/
 
-# contain secrets
-config.py
+# secrets content
+config.development.json

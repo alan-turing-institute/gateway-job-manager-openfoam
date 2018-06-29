@@ -34,8 +34,8 @@ def mock_get_azure_credentials():
     """
     class AzureTestCredentials:
         def __init__(self,config):
-            self.account_name = config["AZURE_ACCOUNT_NAME"]
-            self.account_key = config["AZURE_ACCOUNT_KEY"]
+            self.account_name = config["STORAGE_ACCOUNT_NAME"]
+            self.account_key = config["STORAGE_ACCOUNT_KEY"]
     return AzureTestCredentials(app().config)
 
 
