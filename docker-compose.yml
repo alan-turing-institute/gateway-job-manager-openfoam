@@ -1,6 +1,6 @@
 version: '3'
 services:
-  job-manager:
+  manager:
     build: .
     ports:
      - "5001:5001"
