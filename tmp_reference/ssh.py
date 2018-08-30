@@ -4,21 +4,27 @@ from scp import SCPClient
 from io import StringIO
 
 
-class ssh():
+class ssh:
     """
     A simple class around a basic paramiko ssh connection to make things easier
     to understand.
     """
 
-    def __init__(self, hostname, username, port,
-                 private_key_path=None, private_key_string=None,
-                 debug=True):
+    def __init__(
+        self,
+        hostname,
+        username,
+        port,
+        private_key_path=None,
+        private_key_string=None,
+        debug=True,
+    ):
         """
         Load keys from private_key_path and private_key_string
         """
         if debug:
-            os.makedirs(os.path.dirname('.logs/ssh.log'), exist_ok=True)
-            paramiko.util.log_to_file('.logs/ssh.log')
+            os.makedirs(os.path.dirname(".logs/ssh.log"), exist_ok=True)
+            paramiko.util.log_to_file(".logs/ssh.log")
         self.client = paramiko.SSHClient()
         self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
@@ -42,7 +48,8 @@ class ssh():
             port=port,
             username=username,
             pkey=pkey,
-            look_for_keys=look_for_keys)
+            look_for_keys=look_for_keys,
+        )
 
     def pass_command(self, command):
         """

@@ -8,6 +8,7 @@ from connection.cloud import AzureBlobService, AzureCredentials
 
 from flask import current_app
 
+
 def get_azure_credentials():
     """
     use the config's azure account_name and account_key
@@ -33,7 +34,7 @@ def get_relative_path_from_uri(source_uri, acc_name):
             blob_name += element + "/"
         if acc_name in element:
             found_acc_name = True
-    blob_name = blob_name[:-1] # remove trailing slash
+    blob_name = blob_name[:-1]  # remove trailing slash
     return blob_name, container_name
 
 
@@ -41,25 +42,27 @@ def get_remote_scripts(scripts, destination_dir):
     """
     use Azure BlockBlobService to get scripts from cloud storage and put them in local directory
     """
-    dummy={}
+    dummy = {}
     azure_credentials = get_azure_credentials()
     acc_name = azure_credentials.account_name
     blob_retriever = AzureBlobService(azure_credentials)
-    retrieved_ok, message = True, 'no scripts retrieved so far'
+    retrieved_ok, message = True, "no scripts retrieved so far"
 
     for script in scripts:
         source_uri = script["source"]
-        blob_name, container_name = get_relative_path_from_uri(source_uri,
-                                                               acc_name)
+        blob_name, container_name = get_relative_path_from_uri(source_uri, acc_name)
         if blob_name is None or container_name is None:
-            return False, 'Unable to extract blob or container name from {}'.format(source_uri)
+            return (
+                False,
+                "Unable to extract blob or container name from {}".format(source_uri),
+            )
         blob_relative_dir = os.path.dirname(blob_name)
         local_filepath = os.path.join(destination_dir, blob_relative_dir)
         os.makedirs(local_filepath, exist_ok=True)
 
-        retrieved_ok, message = blob_retriever.retrieve_blob(blob_name,
-                                                             container_name,
-                                                             local_filepath)
+        retrieved_ok, message = blob_retriever.retrieve_blob(
+            blob_name, container_name, local_filepath
+        )
         if not retrieved_ok:
             return retrieved_ok, message
         # modify the script dictionary (dicts are mutable) to replace the source uri

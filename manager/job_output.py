@@ -18,13 +18,11 @@ def prepare_output_storage():
     azure_credentials = AzureCredentials(current_app.config)
     azure_blob_service = AzureBlobService(azure_credentials)
     container_name = check_create_blob_container(azure_blob_service)
-    sas_token = get_sas_token(container_name,
-                              azure_blob_service,
-                              duration=1,
-                              permissions="WRITE")
+    sas_token = get_sas_token(
+        container_name, azure_blob_service, duration=1, permissions="WRITE"
+    )
     blob_basename = current_app.config["STORAGE_BLOB_BASENAME"]
-    return azure_credentials.account_name, container_name, \
-        sas_token, blob_basename
+    return azure_credentials.account_name, container_name, sas_token, blob_basename
 
 
 def check_create_blob_container(service):
@@ -53,7 +51,8 @@ def get_outputs(job_id, with_sas=False):
     return a dictionary of all outputs from the job.
     For now we only have one output - a zip file.
     """
-    return {"zip" : get_output_uri(job_id, with_sas) }
+    return {"zip": get_output_uri(job_id, with_sas)}
+
 
 def get_output_uri(job_id, with_sas=False):
     """
@@ -61,16 +60,17 @@ def get_output_uri(job_id, with_sas=False):
     If requested, generate a SAS token and append to the URI.
     """
     container_name = current_app.config["STORAGE_OUTPUT_CONTAINER"]
-    uri = 'https://{}.blob.core.windows.net/{}/{}/{}'.format(
+    uri = "https://{}.blob.core.windows.net/{}/{}/{}".format(
         current_app.config["STORAGE_ACCOUNT_NAME"],
         container_name,
         str(job_id),
-        current_app.config["STORAGE_BLOB_BASENAME"]
+        current_app.config["STORAGE_BLOB_BASENAME"],
     )
     if with_sas:
         azure_credentials = AzureCredentials(current_app.config)
         azure_blob_service = AzureBlobService(azure_credentials)
-        token = get_sas_token(container_name, azure_blob_service,
-                              duration=1, permissions="READ")
-        uri = '{}?{}'.format(uri, token)
+        token = get_sas_token(
+            container_name, azure_blob_service, duration=1, permissions="READ"
+        )
+        uri = "{}?{}".format(uri, token)
     return uri
