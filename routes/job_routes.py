@@ -33,6 +33,16 @@ job_start_args = {
 job_status_args = {"status": fields.Str(required=True, strict=True)}
 
 
+job_output_args = {
+    "destination": fields.Str(required=True, strict=True),
+    "type": fields.Str(required=True, strict=True),
+    "name": fields.Str(required=True, strict=True),
+    "label": fields.Str(required=True, strict=True),
+}
+
+job_output_list_args = {"outputs": fields.List(fields.Nested(job_output_args))}
+
+
 class JobStartApi(Resource):
     """
     Endpoint for when a job is started, patch the backend scripts.
@@ -133,6 +143,22 @@ class JobOutputApi(Resource):
                 {"job_id": job_id, "output_type": output_type, "destination_path": uri}
             )
         return outputs
+
+    @use_kwargs(job_output_list_args, locations=("json",))
+    def post(self, job_id, outputs):
+        """
+        Update list of job outputs
+        """
+
+        middleware_url = current_app.config["MIDDLEWARE_API_BASE"]
+        r = requests.put(
+            "{}/job/{}/output".format(middleware_url, str(job_id)),
+            json={"outputs": outputs},
+        )
+
+        if r.status_code != 200:
+            return {"status": r.status_code, "message": "Error setting outputs."}
+        return {"status": 200, "message": "successfully added outputs"}
 
 
 class JobMetricsApi(Resource):

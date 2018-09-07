@@ -64,7 +64,7 @@ def get_output_uri(job_id, with_sas=False):
         current_app.config["STORAGE_ACCOUNT_NAME"],
         container_name,
         str(job_id),
-        current_app.config["STORAGE_BLOB_BASENAME"],
+        current_app.config["STORAGE_BLOB_BASENAME"],  # currently output.zip
     )
     if with_sas:
         azure_credentials = AzureCredentials(current_app.config)
