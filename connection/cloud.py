@@ -29,7 +29,7 @@ class AzureBlobService:
     """
     Class to interface with Azure blob storage.
     The function retrieve_blob expects arguments (blob_name,container_name)
-    The function get_sas_token expects arguments (blob_name,container_name)
+    The function get_sas_token expects no arguments
     The function create_container expects (container_name)
     """
 

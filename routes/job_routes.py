@@ -139,13 +139,15 @@ class JobOutputApi(Resource):
         """
         Return the URL for the completed job, including a SAS token.
         """
-        outputs = []
-        job_outputs = job_output.get_outputs(job_id, with_sas=True)
-        for output_type, uri in job_outputs.items():
-            outputs.append(
-                {"job_id": job_id, "output_type": output_type, "destination_path": uri}
-            )
-        return outputs
+        # callback GET request to fetch relevant outputs data
+        # requires threaded=True in middleware app.run() instantiation
+        middleware_url = current_app.config["MIDDLEWARE_API_BASE"]
+        r = requests.get(f"{middleware_url}/job/{job_id}")
+        outputs = r.json().get("outputs")
+
+        # append SAS token to each output URL
+        outputs_with_token = job_output.append_token(outputs)
+        return outputs_with_token
 
     @use_kwargs(job_output_list_args, locations=("json",))
     def post(self, job_id, outputs):
@@ -154,7 +156,7 @@ class JobOutputApi(Resource):
         """
 
         middleware_url = current_app.config["MIDDLEWARE_API_BASE"]
-        r = requests.put(
+        r = requests.patch(
             "{}/job/{}/output".format(middleware_url, str(job_id)),
             json={"outputs": outputs},
         )
