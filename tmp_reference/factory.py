@@ -10,17 +10,16 @@ from api import SetupApi, ProgressApi, DataApi, CancelApi, RunApi
 
 
 def create_app(config_name):
-    app = Flask(__name__, instance_relative_config = True)
+    app = Flask(__name__, instance_relative_config=True)
     CORS(app, resources={r"/api/*": {"origins": "*"}})
-
 
     #
     # ...
     #
 
-   # class Helloworld(Resource):
-   #     return
-    
+    # class Helloworld(Resource):
+    #     return
+
     api = Api(app)
 
     #

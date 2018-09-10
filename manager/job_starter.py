@@ -11,6 +11,7 @@ import tempfile
 
 import json
 
+
 def preprocess(scripts, parameters, job_id):
     """
     get scripts from remote storage to a local disk (keeping the same filename)
@@ -21,32 +22,29 @@ def preprocess(scripts, parameters, job_id):
     job_dir = os.path.join(tmp_dir, str(job_id))
 
     # make some local directories for the raw and patched scripts
-    job_dir_raw = os.path.join(job_dir, 'raw')
+    job_dir_raw = os.path.join(job_dir, "raw")
     os.makedirs(job_dir_raw, exist_ok=True)
-    job_dir_patch = os.path.join(job_dir, 'patched')
+    job_dir_patch = os.path.join(job_dir, "patched")
     os.makedirs(job_dir_patch, exist_ok=True)
 
     # get the scripts from cloud storage
-    fetched_ok, message = file_getter.get_remote_scripts(scripts,
-                                                         job_dir_raw)
+    fetched_ok, message = file_getter.get_remote_scripts(scripts, job_dir_raw)
     if not fetched_ok:
-        return 'problem fetching scripts: {}'.format(message), -1
+        return "problem fetching scripts: {}".format(message), -1
     # patch the scripts using Mako
-    patched_ok, message = patcher.patch_all_scripts(scripts,
-                                                    parameters,
-                                                    job_dir,
-                                                    job_id)
+    patched_ok, message = patcher.patch_all_scripts(
+        scripts, parameters, job_dir, job_id
+    )
     if not patched_ok:
-        return 'problem patching scripts: {}'.format(message), -1
+        return "problem patching scripts: {}".format(message), -1
     # copy to simulator
     destination_dir = current_app.config["SIM_TMP_DIR"]
-    copied_ok, message = file_putter.copy_scripts_to_backend(job_dir_patch,
-                                                             destination_dir,
-                                                             job_id)
+    copied_ok, message = file_putter.copy_scripts_to_backend(
+        job_dir_patch, destination_dir, job_id
+    )
     if not copied_ok:
-        return 'problem copying files: {}'.format(message), -1
-    return 'preprocessing succeeded', 0
-
+        return "problem copying files: {}".format(message), -1
+    return "preprocessing succeeded", 0
 
 
 def execute_action(scripts, job_id, action):
@@ -55,10 +53,9 @@ def execute_action(scripts, job_id, action):
     """
 
     sim_connection = file_putter.get_simulator_connection()
-    message, status = 'No actions executed yet', 0
+    message, status = "No actions executed yet", 0
 
-    job_root = os.path.join(
-        current_app.config["SIM_TMP_DIR"], str(job_id))
+    job_root = os.path.join(current_app.config["SIM_TMP_DIR"], str(job_id))
 
     for script in scripts:
         script_path = script["destination"]
@@ -69,22 +66,18 @@ def execute_action(scripts, job_id, action):
             if action == "RUN":
 
                 options = {
-                    'workdir': job_root,
-                    'script': script_path,
-                    'log': 'log.{}'.format(stem)
+                    "workdir": job_root,
+                    "script": script_path,
+                    "log": "log.{}".format(stem),
                 }
 
-                run_cmd = 'cd {workdir} && bash ./{script} > {log}'.format_map(
-                    options
-                )
+                run_cmd = "cd {workdir} && bash ./{script} > {log}".format_map(options)
 
-                with open('/tmp/log.interactive', 'a') as f:
+                with open("/tmp/log.interactive", "a") as f:
                     f.write(run_cmd)
 
-                out, err, status = sim_connection.run_remote_command(
-                    run_cmd
-                )
-                message = 'stdout: {}\n stderr: {}'.format(out,err)
+                out, err, status = sim_connection.run_remote_command(run_cmd)
+                message = "stdout: {}\n stderr: {}".format(out, err)
                 break
     return message, status
 

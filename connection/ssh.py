@@ -4,7 +4,7 @@ from scp import SCPClient
 from io import StringIO
 
 
-class SSH():
+class SSH:
     """
     A simple class around a basic paramiko ssh connection to make things easier
     to understand.
@@ -15,8 +15,8 @@ class SSH():
         Load keys from private_key_path and private_key_string
         """
         if debug:
-            os.makedirs(os.path.dirname('.logs/ssh.log'), exist_ok=True)
-            paramiko.util.log_to_file('.logs/ssh.log')
+            os.makedirs(os.path.dirname(".logs/ssh.log"), exist_ok=True)
+            paramiko.util.log_to_file(".logs/ssh.log")
         self.client = paramiko.SSHClient()
         self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
@@ -34,22 +34,22 @@ class SSH():
             private_key_string_.close()
         elif credentials.private_key_path:  # load from file
             look_for_keys = False
-            pkey = paramiko.RSAKey.from_private_key_file(
-                credentials.private_key_path)
+            pkey = paramiko.RSAKey.from_private_key_file(credentials.private_key_path)
 
         self.client.connect(
             hostname=credentials.ssh_hostname,
             port=credentials.ssh_port,
             username=credentials.ssh_username,
             pkey=pkey,
-            look_for_keys=look_for_keys)
+            look_for_keys=look_for_keys,
+        )
 
     def pass_command(self, command):
         """
         Run a bash command on the remote machine and return stdout as a string.
         No error handling, stderr is ignored.
         """
-        stdin, stdout, stderr = self.client.exec_command(command)
+        _, stdout, stderr = self.client.exec_command(command)
         exit_code = stdout.channel.recv_exit_status()
         stdout = stdout.read().decode("utf-8")
         stderr = stderr.read().decode("utf-8")
@@ -58,7 +58,7 @@ class SSH():
 
     def secure_copy_put(self, filename, destination_path):
         """
-        Use SCPClient to copy files over an ssh connection to a 
+        Use SCPClient to copy files over an ssh connection to a
         remote machine.
         """
         with SCPClient(self.client.get_transport()) as scp:
@@ -71,7 +71,6 @@ class SSH():
         """
         with SCPClient(self.client.get_transport()) as scp:
             scp.put(filename, destination_path)
-            
 
     def close_connection(self):
         """

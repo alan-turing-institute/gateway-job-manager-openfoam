@@ -17,15 +17,15 @@ def demo_app():
 
     # read general config from JSON
 
-    config_fname = '../config.testing.json'
+    config_fname = "../config.testing.json"
     # assert Path(config_fname).is_file()
     app.config.from_json(config_fname)
 
     # read storage config from environment
-    app.config['STORAGE_ACCOUNT_NAME'] = os.getenv('STORAGE_ACCOUNT_NAME', '')
-    app.config['STORAGE_ACCOUNT_KEY'] = os.getenv('STORAGE_ACCOUNT_KEY', '')
+    app.config["STORAGE_ACCOUNT_NAME"] = os.getenv("STORAGE_ACCOUNT_NAME", "")
+    app.config["STORAGE_ACCOUNT_KEY"] = os.getenv("STORAGE_ACCOUNT_KEY", "")
 
     app.testing = True
-    api = Api(app)
+    Api(app)
 
     return app

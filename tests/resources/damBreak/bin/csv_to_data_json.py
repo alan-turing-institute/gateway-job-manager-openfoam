@@ -8,7 +8,7 @@ import json
 
 def csv_to_data_json(fname, data_required=None):
 
-    with open(fname, 'r') as f:
+    with open(fname, "r") as f:
         d_reader = csv.DictReader(f)
         headers = d_reader.fieldnames
 
@@ -18,13 +18,10 @@ def csv_to_data_json(fname, data_required=None):
             columns_to_process = []
             column_labels = []
             for object_ in data_required:
-                columns_to_process.append(object_['csv_variable'])
-                column_labels.append(object_['label'])
+                columns_to_process.append(object_["csv_variable"])
+                column_labels.append(object_["label"])
 
-        output = {
-            "keys": columns_to_process,
-            "labels": column_labels
-        }
+        output = {"keys": columns_to_process, "labels": column_labels}
 
         # prepare data lists
         for name in columns_to_process:
@@ -39,26 +36,12 @@ def csv_to_data_json(fname, data_required=None):
 
 
 data_required = [
-    {
-        "csv_variable": "Time(s)",
-        "label": "Time",
-        "units": "s"
-    },
-    {
-        "csv_variable": "linear",
-        "label": "Linear quantity",
-        "units": "kg"
-    },
-    {
-        "csv_variable": "noisy",
-        "label": "Random quantity",
-        "units": "L"
-    }
+    {"csv_variable": "Time(s)", "label": "Time", "units": "s"},
+    {"csv_variable": "linear", "label": "Linear quantity", "units": "kg"},
+    {"csv_variable": "noisy", "label": "Random quantity", "units": "L"},
 ]
 
-data_object = csv_to_data_json(
-    "output.csv",
-    data_required=data_required)
+data_object = csv_to_data_json("output.csv", data_required=data_required)
 
 print(json.dumps(data_object))  # print to stdout
 

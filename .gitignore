@@ -1,3 +1,6 @@
+# editor content
+.vscode
+
 # generated content
 simulator_key*
 simulator.env
