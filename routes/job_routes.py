@@ -38,6 +38,7 @@ job_output_args = {
     "type": fields.Str(required=True, strict=True),
     "name": fields.Str(required=True, strict=True),
     "label": fields.Str(required=True, strict=True),
+    "filename": fields.Str(required=True, strict=True),
 }
 
 job_output_list_args = {"outputs": fields.List(fields.Nested(job_output_args))}
