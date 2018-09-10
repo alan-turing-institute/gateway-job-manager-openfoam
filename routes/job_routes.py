@@ -81,15 +81,16 @@ class JobStatusApi(Resource):
         outputs = []
         if status.upper() == "COMPLETED":
             ### right now we only have one output, which is a zip file
-            job_outputs = job_output.get_outputs(job_id, with_sas=False)
-            for output_type, uri in job_outputs.items():
-                outputs.append(
-                    {
-                        "job_id": job_id,
-                        "output_type": output_type,
-                        "destination_path": uri,
-                    }
-                )
+            # job_outputs = job_output.get_outputs(job_id, with_sas=False)
+            # for output_type, uri in job_outputs.items():
+            #     outputs.append(
+            #         {
+            #             "job_id": job_id,
+            #             "output_type": output_type,
+            #             "destination_path": uri,
+            #         }
+            #     )
+
             ### call the middleware's status api to update the status to "COMPLETED"
             r = requests.put(
                 "{}/job/{}/status".format(middleware_url, str(job_id)), json=status_dict
@@ -99,15 +100,17 @@ class JobStatusApi(Resource):
                     "status": r.status_code,
                     "message": "Error setting COMPLETED status.",
                 }
-            ### now call the middleware's output api to add the output.
-            for output in outputs:
-                r = requests.post(
-                    "{}/job/{}/output".format(middleware_url, str(job_id)), json=output
-                )
-                if r.status_code != 200:
-                    return {"status": r.status_code, "message": "Error setting output."}
+
+            ### now call the middleware's output api to add outputs.
+            # for output in outputs:
+            #     r = requests.post(
+            #         "{}/job/{}/output".format(middleware_url, str(job_id)), json=output
+            #     )
+            #     if r.status_code != 200:
+            #         return {"status": r.status_code, "message": "Error setting output."}
+
             ### posted all outputs to middleware
-            return {"status": 200, "message": "successfully added outputs"}
+            return {"status": 200, "message": "successfully set status"}
         elif status.upper() == "FINALIZING":
             acc, con, tok, blob = job_output.prepare_output_storage()
             blob_name = "{}/{}".format(job_id, blob)
