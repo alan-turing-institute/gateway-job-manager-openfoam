@@ -37,6 +37,7 @@ def test_get_token(app):
             return_value="dambreakoutput"
         )
         result = JobStatusApi().dispatch_request(1)
+        print(result)
         assert result["status"] == 200
         assert result["data"]["token"] is not None
         assert result["data"]["container"] is not None
@@ -61,9 +62,10 @@ def test_job_completed(app):
         assert result["status"] == 200
 
 
+@mark.skip("Assumes existing connection to middleware")
 @request_context("/job/3/output", method="GET")
 def test_get_output(app):
     result = JobOutputApi().dispatch_request(3)
     assert len(result) == 1
-    assert "output_type" in result[0].keys()
-    assert "destination_path" in result[0].keys()
+    assert "type" in result[0].keys()
+    assert "destination" in result[0].keys()

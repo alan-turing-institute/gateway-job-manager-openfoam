@@ -55,10 +55,12 @@ def test_get(mock_get_azure_credentials):
 
     scripts = [
         {
-            "source": "https://simulate.blob.core.windows.net/openfoam-test-cases/damBreak/0/alpha.water.orig"
+            "source": "https://simulate.blob.core.windows.net/"
+            + "openfoam-test-cases/damBreak/0/alpha.water.orig"
         },
         {
-            "source": "https://simulate.blob.core.windows.net/openfoam-test-cases/damBreak/Allrun"
+            "source": "https://simulate.blob.core.windows.net/"
+            + "openfoam-test-cases/damBreak/Allrun"
         },
     ]
 

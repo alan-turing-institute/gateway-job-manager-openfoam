@@ -26,6 +26,6 @@ def demo_app():
     app.config["STORAGE_ACCOUNT_KEY"] = os.getenv("STORAGE_ACCOUNT_KEY", "")
 
     app.testing = True
-    api = Api(app)
+    Api(app)
 
     return app

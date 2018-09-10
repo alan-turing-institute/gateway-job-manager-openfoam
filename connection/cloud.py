@@ -46,7 +46,8 @@ class AzureBlobService:
 
     def retrieve_blob(self, blob_name, container_name, destination="/tmp/"):
         """
-        use the BlockBlobService to retrieve file from Azure, and place in destination folder.
+        use the BlockBlobService to retrieve file from Azure,
+        and place in destination folder.
         """
         local_filename = blob_name.split("/")[-1]
         try:
@@ -69,7 +70,6 @@ class AzureBlobService:
             if permissions == "WRITE"
             else ContainerPermissions.READ
         )
-        duration = token_duration  # days
         token = self.block_blob_service.generate_container_shared_access_signature(
             container_name=container_name,
             permission=token_permission,

@@ -18,8 +18,10 @@ def get_azure_credentials():
 
 def get_relative_path_from_uri(source_uri, acc_name):
     """
-    The script's "source" will be a URI of format https"//<acc_name>.stuff/<container_name>/<blob_name>
-    We want to just get the blob name, which is the relative path we'll copy files into.
+    The script's "source" will be a URI of format
+    https"//<acc_name>.stuff/<container_name>/<blob_name>
+    We want to just get the blob name,
+    which is the relative path we'll copy files into.
     """
     filepath_elements = source_uri.split("/")
     found_acc_name = False
@@ -40,9 +42,9 @@ def get_relative_path_from_uri(source_uri, acc_name):
 
 def get_remote_scripts(scripts, destination_dir):
     """
-    use Azure BlockBlobService to get scripts from cloud storage and put them in local directory
+    use Azure BlockBlobService to get scripts from cloud
+    storage and put them in local directory
     """
-    dummy = {}
     azure_credentials = get_azure_credentials()
     acc_name = azure_credentials.account_name
     blob_retriever = AzureBlobService(azure_credentials)

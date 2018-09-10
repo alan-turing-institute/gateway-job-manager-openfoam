@@ -49,7 +49,7 @@ class SSH:
         Run a bash command on the remote machine and return stdout as a string.
         No error handling, stderr is ignored.
         """
-        stdin, stdout, stderr = self.client.exec_command(command)
+        _, stdout, stderr = self.client.exec_command(command)
         exit_code = stdout.channel.recv_exit_status()
         stdout = stdout.read().decode("utf-8")
         stderr = stderr.read().decode("utf-8")
@@ -58,7 +58,7 @@ class SSH:
 
     def secure_copy_put(self, filename, destination_path):
         """
-        Use SCPClient to copy files over an ssh connection to a 
+        Use SCPClient to copy files over an ssh connection to a
         remote machine.
         """
         with SCPClient(self.client.get_transport()) as scp:
