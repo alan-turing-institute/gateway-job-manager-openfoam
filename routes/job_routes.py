@@ -165,21 +165,3 @@ class JobOutputApi(Resource):
         if r.status_code != 200:
             return {"status": r.status_code, "message": "Error setting outputs."}
         return {"status": 200, "message": "successfully added outputs"}
-
-
-class JobMetricsApi(Resource):
-    """
-    Endpoint to retrieve the metrics of a job while it is in progress.
-    """
-
-    def get(self, job_id):
-        """
-        Return the URL for the completed job, including a SAS token.
-        """
-        outputs = []
-        job_outputs = job_output.get_outputs(job_id, with_sas=True)
-        for output_type, uri in job_outputs.items():
-            outputs.append(
-                {"job_id": job_id, "output_type": output_type, "destination_path": uri}
-            )
-        return outputs
