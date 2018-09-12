@@ -7,17 +7,17 @@ import requests
 
 ### start job 123 on job_manager,  send fields/values to patch, and locations of scripts that need to be patched
 
-r=requests.post("http://localhost:5001/job/123/start", json={"fields_to_patch": [{"name" : "field1", "value": "val1"} ],"scripts": [{"name": "Allrun", "location" : "testopenfoamapi"}],"username" : "testuser"})
+r=requests.post("http://localhost:5010/job/123/start", json={"fields_to_patch": [{"name" : "field1", "value": "val1"} ],"scripts": [{"name": "Allrun", "location" : "testopenfoamapi"}],"username" : "testuser"})
 
 print(r.text)
 
 ### change status of job 123 to "Submitted"
 
-r=requests.patch("http://localhost:5001/job/123/status",json={"job_status" : "Submitted"})
+r=requests.patch("http://localhost:5010/job/123/status",json={"job_status" : "Submitted"})
 
 print r.text
 
-r=requests.post("http://localhost:5001/job/123/start", json={"fields_to_patch": [],"scripts": [{"source": "https://simulate.blob.core.windows.net/testopenfoamapi/status_updater.sh", "destination" : "dummy_scripts/status_updater.sh","action": "RUN", "patch": False}],"username" : "testuser"})
+r=requests.post("http://localhost:5010/job/123/start", json={"fields_to_patch": [],"scripts": [{"source": "https://simulate.blob.core.windows.net/testopenfoamapi/status_updater.sh", "destination" : "dummy_scripts/status_updater.sh","action": "RUN", "patch": False}],"username" : "testuser"})
 
 
 ###### CREATE NEW JOB IN MIDDLEWARE, FROM CASE 1:

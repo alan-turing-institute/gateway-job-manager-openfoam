@@ -3,7 +3,7 @@ services:
   manager:
     build: .
     ports:
-     - "5001:5001"
+     - "5010:5010"
      - "10023:22"
     volumes:
      - .:/app
@@ -12,3 +12,4 @@ services:
     environment:
       - FLASK_CONFIGURATION=development
       - ENV_FLASK_APP=app.py
+    command: gunicorn -w 1 -b :5010 app:app --reload

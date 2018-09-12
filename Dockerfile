@@ -16,9 +16,6 @@ WORKDIR /app
 RUN pip install -r requirements.txt
 
 # Set up the application state
-
-EXPOSE 5001
-EXPOSE 22
 ENV FLASK_APP app.py
 
 RUN mkdir -p /var/log/supervisor && \

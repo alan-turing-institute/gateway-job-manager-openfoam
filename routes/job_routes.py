@@ -1,7 +1,6 @@
 """
 Job routes for the job manager API.
 """
-from multiprocessing import Process
 
 from flask_restful import Resource, abort
 from flask import current_app
@@ -55,14 +54,10 @@ class JobStartApi(Resource):
         retrieve scripts, patch scripts, check return codes,
         tell backend to run the job.
         """
-        print("About to start job %s" % job_id)
-        p = Process(
-            target=job_starter.start_job, args=(scripts, fields_to_patch, job_id)
-        )
-        p.start()
-        # message, return_code = job_starter.start_job(scripts, fields_to_patch, job_id)
-
-        return {"data": "Job submitting", "status": 200}  # message,
+        _, _ = job_starter.start_job(
+            scripts, fields_to_patch, job_id
+        )  # message, return_code
+        return {"data": "Job submitting", "status": 200}
 
 
 class JobStatusApi(Resource):

@@ -12,6 +12,7 @@ Flask-Cors==3.0.3
 flask-marshmallow==0.8.0
 Flask-RESTful==0.3.6
 Flask-SQLAlchemy==2.2
+gunicorn==19.9.0
 idna==2.5
 itsdangerous==0.24
 Jinja2==2.9.6
