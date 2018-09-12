@@ -24,7 +24,7 @@ Code that had previously been in science-gateway-middleware is now in
 and seems to be a good starting point.
 
 
-This package creates a flask app, with the API at `0.0.0.0:5001`.
+This package creates a flask app, with the API at `0.0.0.0:5010`.
 
 This Flask app will communicate with the middleware passing HTTP verbs via the `requests` library.
 There are (temporary) example API calls in `tmp_reference/example_requests_requests.py`
