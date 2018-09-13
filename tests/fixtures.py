@@ -17,7 +17,7 @@ def demo_app():
 
     # read general config from JSON
 
-    config_fname = "../config.testing.json"
+    config_fname = "config.testing.json"
     # assert Path(config_fname).is_file()
     app.config.from_json(config_fname)
 
