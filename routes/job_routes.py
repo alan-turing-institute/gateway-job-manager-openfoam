@@ -137,9 +137,13 @@ class JobOutputApi(Resource):
         """
 
         middleware_url = current_app.config["MIDDLEWARE_API_BASE"]
+        auth_token_string = request.headers.get("Authorization")
+        headers = {"Authorization": auth_token_string}
+
         r = requests.patch(
             "{}/job/{}/output".format(middleware_url, str(job_id)),
             json={"outputs": outputs},
+            headers=headers,
         )
 
         if r.status_code != 200:
