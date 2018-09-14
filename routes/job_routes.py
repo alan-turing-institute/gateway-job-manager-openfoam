@@ -3,7 +3,7 @@ Job routes for the job manager API.
 """
 
 from flask_restful import Resource, abort
-from flask import current_app
+from flask import current_app, request
 
 from webargs import fields, missing
 from webargs.flaskparser import use_kwargs
@@ -115,10 +115,15 @@ class JobOutputApi(Resource):
         """
         Return the URL for the completed job, including a SAS token.
         """
+
+        auth_token_string = request.headers.get("Authorization")
+        headers = {"Authorization": auth_token_string}
+
         # callback GET request to fetch relevant outputs data
-        # requires threaded=True in middleware app.run() instantiation
+        # development mode requires threaded=True in middleware app.run() instantiation
         middleware_url = current_app.config["MIDDLEWARE_API_BASE"]
-        r = requests.get(f"{middleware_url}/job/{job_id}")
+
+        r = requests.get(f"{middleware_url}/job/{job_id}", headers=headers)
         outputs = r.json().get("outputs")
 
         # append SAS token to each output URL
