@@ -19,8 +19,8 @@ def prepare_output_storage():
     azure_blob_service = AzureBlobService(azure_credentials)
     container_name = check_create_blob_container(azure_blob_service)
     sas_token = get_sas_token(permissions="WRITE")
-    blob_basename = current_app.config["STORAGE_BLOB_BASENAME"]
-    return azure_credentials.account_name, container_name, sas_token, blob_basename
+    # blob_basename = current_app.config["STORAGE_BLOB_BASENAME"]
+    return azure_credentials.account_name, container_name, sas_token
 
 
 def check_create_blob_container(service):

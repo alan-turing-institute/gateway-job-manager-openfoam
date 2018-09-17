@@ -21,7 +21,7 @@ def consolidate_params(parameter_list):
     return output_dict
 
 
-def patch_all_scripts(scripts, parameters, job_dir, job_id):
+def patch_all_scripts(scripts, parameters, job_dir, job_id, job_token):
     """
         Method to apply a patch based on a supplied template file.
         Loop through all files in a given directory.
@@ -36,6 +36,7 @@ def patch_all_scripts(scripts, parameters, job_dir, job_id):
     param_dict = consolidate_params(parameters)
     # add the job_id to the dict of parameters to be patched
     param_dict["job_id"] = job_id
+    param_dict["job_token"] = job_token
 
     # loop through all files in the input directory
     for script in scripts:

@@ -12,7 +12,7 @@ import tempfile
 import json
 
 
-def preprocess(scripts, parameters, job_id):
+def preprocess(scripts, parameters, job_id, job_token):
     """
     get scripts from remote storage to a local disk (keeping the same filename)
     patch them (changing filename), and copy to final location.
@@ -33,7 +33,7 @@ def preprocess(scripts, parameters, job_id):
         return "problem fetching scripts: {}".format(message), -1
     # patch the scripts using Mako
     patched_ok, message = patcher.patch_all_scripts(
-        scripts, parameters, job_dir, job_id
+        scripts, parameters, job_dir, job_id, job_token
     )
     if not patched_ok:
         return "problem patching scripts: {}".format(message), -1
@@ -82,13 +82,13 @@ def execute_action(scripts, job_id, action):
     return message, status
 
 
-def start_job(scripts, parameters, job_id):
+def start_job(scripts, parameters, job_id, job_token):
     """
     Called by the job/<jobid>/start API endpoint.
     Get the scripts onto the simulator via the preprocess method,
     and perform their actions.
     """
-    message, status_code = preprocess(scripts, parameters, job_id)
+    message, status_code = preprocess(scripts, parameters, job_id, job_token)
 
     if status_code != 0:
         return message, status_code
