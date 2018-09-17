@@ -19,8 +19,8 @@ job_field_args = {"name": fields.Str(required=True), "value": fields.Str(require
 job_script_args = {
     "source": fields.Str(required=True),
     "destination": fields.Str(required=True),
-    "patch": fields.Boolean(required=True),
-    "action": fields.Str(required=True),
+    "patch": fields.Boolean(required=False),
+    "action": fields.Str(required=False),
 }
 
 
@@ -29,6 +29,8 @@ job_start_args = {
     "fields_to_patch": fields.List(fields.Nested(job_field_args)),
     "scripts": fields.List(fields.Nested(job_script_args)),
 }
+
+job_stop_args = {"scripts": fields.List(fields.Nested(job_script_args))}
 
 job_status_args = {"status": fields.Str(required=True, strict=True)}
 
@@ -76,6 +78,17 @@ class JobStartApi(Resource):
             scripts, fields_to_patch, job_id, job_token
         )  # message, return_code
         return {"data": "Job submitting", "status": 200}
+
+
+class JobStopApi(Resource):
+    """
+    Stop a job.
+    """
+
+    @use_kwargs(job_stop_args, locations=("json",))
+    def post(self, job_id, scripts):
+        _, _ = job_starter.stop_job(job_id, scripts)
+        return {"message": "Stopped job"}
 
 
 class JobStatusApi(Resource):

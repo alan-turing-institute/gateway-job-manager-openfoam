@@ -63,7 +63,7 @@ def execute_action(scripts, job_id, action):
         stem, _ = os.path.splitext(script_name)
 
         if script["action"] == action:
-            if action == "RUN":
+            if action in ["RUN", "STOP"]:
 
                 options = {
                     "workdir": job_root,
@@ -72,9 +72,6 @@ def execute_action(scripts, job_id, action):
                 }
 
                 run_cmd = "cd {workdir} && bash ./{script} > {log}".format_map(options)
-
-                with open("/tmp/log.interactive", "a") as f:
-                    f.write(run_cmd)
 
                 out, err, status = sim_connection.run_remote_command(run_cmd)
                 message = "stdout: {}\n stderr: {}".format(out, err)
@@ -95,4 +92,12 @@ def start_job(scripts, parameters, job_id, job_token):
 
     message, status_code = execute_action(scripts, job_id, "RUN")
 
+    return message, status_code
+
+
+def stop_job(job_id, scripts):
+    """
+    Called by the job/<jobid>/stop API endpoint.
+    """
+    message, status_code = execute_action(scripts, job_id, "STOP")
     return message, status_code
