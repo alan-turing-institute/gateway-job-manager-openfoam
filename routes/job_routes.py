@@ -103,6 +103,7 @@ class JobStopApi(Resource):
         log = ResponseLog()
 
         # stop the simulator job
+        log.add_message(f"Stopping job {job_id}.")
         stdout, stderr, exit_code = job_starter.stop_job(job_id, scripts)
         data = dict(stdout=stdout, stderr=stderr, exit_code=exit_code)
 
