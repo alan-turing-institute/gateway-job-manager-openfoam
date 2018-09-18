@@ -18,7 +18,7 @@ def get_simulator_connection():
     return ssh_connection
 
 
-def verify_copy(copied_list, destination_dir, ssh_connection):
+def verify_copy(copied_list, destination_dir, ssh_connection, log=None):
     """
     check the output of "find" on the simulator matches the list of
     files that we copied.  Return False if any of them are missing.
@@ -30,11 +30,11 @@ def verify_copy(copied_list, destination_dir, ssh_connection):
         if script not in found_files:
             errors.append(f"Could not find script: {script}")
             return False, messages, errors
-    messages.append("Files verified")
-    return True, messages, errors
+    log.add_message("Files verified")
+    return True
 
 
-def copy_scripts_to_backend(source_basedir, destination_basedir, job_id):
+def copy_scripts_to_backend(job_id, source_basedir, destination_basedir, log=None):
     """
     use paramiko scp to copy scripts to destination directory on backend.
     The scripts have already been renamed by the patcher to correspond to
@@ -42,7 +42,7 @@ def copy_scripts_to_backend(source_basedir, destination_basedir, job_id):
     The destination_basedir specified as an argument here
     should already have job_id appended to it.
     """
-    messages, errors = [], []
+
     ssh_connection = get_simulator_connection()
     # append the job_id to the destination dir
     destination_basedir = os.path.join(destination_basedir, str(job_id))
@@ -66,10 +66,11 @@ def copy_scripts_to_backend(source_basedir, destination_basedir, job_id):
             ssh_connection.copy_file_to_simulator(local_file_path, destination_path)
             copied_filenames.append(destination_path)
     # check they all copied ok
-    success, m, e = verify_copy(copied_filenames, destination_basedir, ssh_connection)
-    messages.extend(m)
+    success = verify_copy(
+        copied_filenames, destination_basedir, ssh_connection, log=log
+    )
+
     if not success:
-        errors.extend(e)
-        return False, messages, errors
-    # all OK
-    return True, messages, errors
+        return False
+
+    return True

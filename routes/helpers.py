@@ -15,3 +15,19 @@ def make_response(response=RequestStatus.SUCCESS, messages=[], errors=[], data=N
         "errors": errors,
         "data": data,
     }
+
+
+class ResponseLog:
+    """
+    Aggregate errors and messages for reporting.
+    """
+
+    def __init__(self):
+        self.messages = []
+        self.errors = []
+
+    def add_message(self, message):
+        self.messages.append(message)
+
+    def add_error(self, error):
+        self.errors.append(error)

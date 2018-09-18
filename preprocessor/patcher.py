@@ -21,7 +21,7 @@ def consolidate_params(parameter_list):
     return output_dict
 
 
-def patch_all_scripts(scripts, parameters, job_dir, job_id, job_token):
+def patch_all_scripts(job_id, scripts, parameters, job_dir, job_token=None, log=None):
     """
         Method to apply a patch based on a supplied template file.
         Loop through all files in a given directory.
@@ -29,7 +29,6 @@ def patch_all_scripts(scripts, parameters, job_dir, job_id, job_token):
         dir called "patched", where the patched scripts will go.
         """
 
-    messages, errors = [], []
     # these directories have already been made by preprocessor
     raw_dir = os.path.join(job_dir, "raw")
     patched_basedir = os.path.join(job_dir, "patched")
@@ -57,8 +56,8 @@ def patch_all_scripts(scripts, parameters, job_dir, job_id, job_token):
         else:
             shutil.copy(raw_path, patched_path)
 
-    messages.append("All scripts patched.")
-    return True, messages, errors
+    log.add_message("All scripts patched.")
+    return True
 
 
 def patch_one_script(raw_path, patched_path, parameters):

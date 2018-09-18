@@ -12,13 +12,12 @@ import tempfile
 import json
 
 
-def preprocess(scripts, parameters, job_id, job_token):
+def preprocess(job_id, scripts, parameters, job_token=None, log=None):
     """
     get scripts from remote storage to a local disk (keeping the same filename)
     patch them (changing filename), and copy to final location.
     """
 
-    messages, errors = [], []
     tmp_dir = current_app.config["LOCAL_TMP_DIR"]
     job_dir = os.path.join(tmp_dir, str(job_id))
 
@@ -28,28 +27,25 @@ def preprocess(scripts, parameters, job_id, job_token):
     job_dir_patch = os.path.join(job_dir, "patched")
     os.makedirs(job_dir_patch, exist_ok=True)
 
-    success, m, e = file_getter.get_remote_scripts(scripts, job_dir_raw)
-    messages.extend(m)
+    success = file_getter.get_remote_scripts(scripts, job_dir_raw, log=log)
     if not success:
-        errors.extend(e)
-        return False, messages, errors
-    success, m, e = patcher.patch_all_scripts(
-        scripts, parameters, job_dir, job_id, job_token
+        return False
+
+    success = patcher.patch_all_scripts(
+        job_id, scripts, parameters, job_dir, job_token=job_token, log=log
     )
-    messages.extend(m)
     if not success:
-        errors.extend(e)
+        return False
 
     # copy to simulator
     destination_dir = current_app.config["SIM_TMP_DIR"]
-    success, m, e = file_putter.copy_scripts_to_backend(
-        job_dir_patch, destination_dir, job_id
+    success = file_putter.copy_scripts_to_backend(
+        job_id, job_dir_patch, destination_dir, log=log
     )
-    messages.extend(m)
     if not success:
-        errors.extend(e)
-        return False, messages, errors
-    return True, messages, errors
+        return False
+
+    return True
 
 
 def execute_action(scripts, job_id, action):

@@ -40,7 +40,7 @@ def get_relative_path_from_uri(source_uri, acc_name):
     return blob_name, container_name
 
 
-def get_remote_scripts(scripts, destination_dir):
+def get_remote_scripts(scripts, destination_dir, log=None):
     """
     use Azure BlockBlobService to get scripts from cloud
     storage and put them in local directory
@@ -48,27 +48,23 @@ def get_remote_scripts(scripts, destination_dir):
     azure_credentials = get_azure_credentials()
     acc_name = azure_credentials.account_name
     blob_retriever = AzureBlobService(azure_credentials)
-    messages, errors = [], []
 
     for script in scripts:
         source_uri = script["source"]
         blob_name, container_name = get_relative_path_from_uri(source_uri, acc_name)
         if blob_name is None or container_name is None:
-            errors.append(f"Unable to extract blob or container name from {source_uri}")
-            return False, messages, errors
+            log.add_error(f"Unable to extract blob or container name from {source_uri}")
+            return False
         blob_relative_dir = os.path.dirname(blob_name)
         local_filepath = os.path.join(destination_dir, blob_relative_dir)
         os.makedirs(local_filepath, exist_ok=True)
 
-        success, m, e = blob_retriever.retrieve_blob(
-            blob_name, container_name, local_filepath
+        success = blob_retriever.retrieve_blob(
+            blob_name, container_name, local_filepath, log=log
         )
         if not success:
-            messages.extend(m)
-            errors.extend(e)
-            return False, messages, errors
+            return False
         # modify the script dictionary (dicts are mutable) to replace the source uri
         # with just the relative path.  This way the patcher will be able to find it.
         script["source"] = blob_name
-
-    return True, messages, errors
+    return True
