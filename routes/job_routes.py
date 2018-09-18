@@ -99,10 +99,21 @@ class JobStopApi(Resource):
 
     @use_kwargs(job_stop_args, locations=("json",))
     def post(self, job_id, scripts):
+
         log = ResponseLog()
+
+        # stop the simulator job
         stdout, stderr, exit_code = job_starter.stop_job(job_id, scripts)
-        log.add_message(f"Stopped job {job_id}")
         data = dict(stdout=stdout, stderr=stderr, exit_code=exit_code)
+
+        # update the middleware job status
+        middleware_url = current_app.config["MIDDLEWARE_API_BASE"]
+        r = requests.put(
+            f"{middleware_url}/job/{job_id}/status", json={"status": "STOPPED"}
+        )
+        if r.status_code == 200:
+            log.add_message("Updated status to Stopped.")
+
         return make_response(messages=log.messages, data=data)
 
 

@@ -9,12 +9,10 @@ def make_response(response=RequestStatus.SUCCESS, messages=[], errors=[], data=N
     """
     Make a response dictionary to return to the user
     """
-    return {
-        "status": response.value,
-        "messages": messages,
-        "errors": errors,
-        "data": data,
-    }
+    template = {"status": response.value, "messages": messages, "errors": errors}
+    if data:
+        template["data"] = data
+    return template
 
 
 class ResponseLog:
