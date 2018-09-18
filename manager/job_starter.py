@@ -12,7 +12,7 @@ import tempfile
 import json
 
 
-def preprocess(scripts, parameters, job_id, job_token):
+def preprocess(job_id, scripts, parameters, job_token=None, log=None):
     """
     get scripts from remote storage to a local disk (keeping the same filename)
     patch them (changing filename), and copy to final location.
@@ -27,24 +27,25 @@ def preprocess(scripts, parameters, job_id, job_token):
     job_dir_patch = os.path.join(job_dir, "patched")
     os.makedirs(job_dir_patch, exist_ok=True)
 
-    # get the scripts from cloud storage
-    fetched_ok, message = file_getter.get_remote_scripts(scripts, job_dir_raw)
-    if not fetched_ok:
-        return "problem fetching scripts: {}".format(message), -1
-    # patch the scripts using Mako
-    patched_ok, message = patcher.patch_all_scripts(
-        scripts, parameters, job_dir, job_id, job_token
+    success = file_getter.get_remote_scripts(scripts, job_dir_raw, log=log)
+    if not success:
+        return False
+
+    success = patcher.patch_all_scripts(
+        job_id, scripts, parameters, job_dir, job_token=job_token, log=log
     )
-    if not patched_ok:
-        return "problem patching scripts: {}".format(message), -1
+    if not success:
+        return False
+
     # copy to simulator
     destination_dir = current_app.config["SIM_TMP_DIR"]
-    copied_ok, message = file_putter.copy_scripts_to_backend(
-        job_dir_patch, destination_dir, job_id
+    success = file_putter.copy_scripts_to_backend(
+        job_id, job_dir_patch, destination_dir, log=log
     )
-    if not copied_ok:
-        return "problem copying files: {}".format(message), -1
-    return "preprocessing succeeded", 0
+    if not success:
+        return False
+
+    return True
 
 
 def execute_action(scripts, job_id, action):
@@ -53,7 +54,7 @@ def execute_action(scripts, job_id, action):
     """
 
     sim_connection = file_putter.get_simulator_connection()
-    message, status = "No actions executed yet", 0
+    (stdout, stderr, exit_code) = (None, None, 0)
 
     job_root = os.path.join(current_app.config["SIM_TMP_DIR"], str(job_id))
 
@@ -63,7 +64,7 @@ def execute_action(scripts, job_id, action):
         stem, _ = os.path.splitext(script_name)
 
         if script["action"] == action:
-            if action == "RUN":
+            if action in ["RUN", "STOP"]:
 
                 options = {
                     "workdir": job_root,
@@ -73,13 +74,9 @@ def execute_action(scripts, job_id, action):
 
                 run_cmd = "cd {workdir} && bash ./{script} > {log}".format_map(options)
 
-                with open("/tmp/log.interactive", "a") as f:
-                    f.write(run_cmd)
-
-                out, err, status = sim_connection.run_remote_command(run_cmd)
-                message = "stdout: {}\n stderr: {}".format(out, err)
+                stdout, stderr, exit_code = sim_connection.run_remote_command(run_cmd)
                 break
-    return message, status
+    return stdout, stderr, exit_code
 
 
 def start_job(scripts, parameters, job_id, job_token):
@@ -88,11 +85,15 @@ def start_job(scripts, parameters, job_id, job_token):
     Get the scripts onto the simulator via the preprocess method,
     and perform their actions.
     """
-    message, status_code = preprocess(scripts, parameters, job_id, job_token)
 
-    if status_code != 0:
-        return message, status_code
+    stdout, stderr, exit_code = execute_action(scripts, job_id, "RUN")
 
-    message, status_code = execute_action(scripts, job_id, "RUN")
+    return stdout, stderr, exit_code
 
-    return message, status_code
+
+def stop_job(job_id, scripts):
+    """
+    Called by the job/<jobid>/stop API endpoint.
+    """
+    stdout, stderr, exit_code = execute_action(scripts, job_id, "STOP")
+    return stdout, stderr, exit_code

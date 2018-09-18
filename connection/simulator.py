@@ -38,18 +38,16 @@ class SimulatorConnection:
                 )
             )
 
-    def run_remote_command(self, command, debug=False):
+    def run_remote_command(self, command):
         """
         Method to run a given command remotely via SSH
         Shouldnt be called directly.
         """
         connection = self._ssh_connection()
-        out, err, exit_code = connection.pass_command(command)
-        if debug:
-            print(out)
-        return out, err, exit_code
+        stdout, stderr, exit_code = connection.pass_command(command)
+        return stdout, stderr, exit_code
 
-    def copy_file_to_simulator(self, source, destination_dir, debug=False):
+    def copy_file_to_simulator(self, source, destination_dir):
         """
         Copy a file from host to simulator.
         """

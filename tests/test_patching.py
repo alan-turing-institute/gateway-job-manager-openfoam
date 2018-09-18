@@ -120,7 +120,8 @@ def test_patch_with_start(mock_get_remote_scripts, app):
         return_value=(True, "")
     )
     result = JobStartApi().dispatch_request(1)
-    assert result["status"] == 200
+
+    assert result["status"] == "success"
     time.sleep(5)
     filename_param_map = [
         {"filename": "input_script_1.py", "param": "BAR"},
@@ -187,7 +188,7 @@ def test_patch_with_directory_structure(mock_get_remote_scripts, app):
         return_value=(True, "")
     )
     result = JobStartApi().dispatch_request(1)
-    assert result["status"] == 200
+    assert result["status"] == "success"
     time.sleep(5)
     job_dirs = os.listdir(TMP_DIR)
     assert len(job_dirs) == 1
@@ -252,7 +253,7 @@ def test_patch_openfoam(mock_get_remote_scripts, app):
         return_value=(True, "")
     )
     result = JobStartApi().dispatch_request(1)
-    assert result["status"] == 200
+    assert result["status"] == "success"
     time.sleep(5)
     job_dirs = os.listdir(TMP_DIR)
     assert len(job_dirs) == 1
@@ -310,7 +311,7 @@ def test_patch_jobid(mock_get_remote_scripts, app):
         return_value=(True, "")
     )
     result = JobStartApi().dispatch_request(1357)
-    assert result["status"] == 200
+    assert result["status"] == "success"
     time.sleep(5)
     job_dirs = os.listdir(TMP_DIR)
     assert len(job_dirs) == 1

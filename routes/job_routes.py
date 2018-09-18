@@ -13,14 +13,16 @@ import os
 
 from manager import job_starter, job_output
 from .authentication import token_required, job_token_required
+from .helpers import make_response, ResponseLog
+from connection.constants import RequestStatus
 
 job_field_args = {"name": fields.Str(required=True), "value": fields.Str(required=True)}
 
 job_script_args = {
     "source": fields.Str(required=True),
     "destination": fields.Str(required=True),
-    "patch": fields.Boolean(required=True),
-    "action": fields.Str(required=True),
+    "patch": fields.Boolean(required=False),
+    "action": fields.Str(required=False),
 }
 
 
@@ -29,6 +31,8 @@ job_start_args = {
     "fields_to_patch": fields.List(fields.Nested(job_field_args)),
     "scripts": fields.List(fields.Nested(job_script_args)),
 }
+
+job_stop_args = {"scripts": fields.List(fields.Nested(job_script_args))}
 
 job_status_args = {"status": fields.Str(required=True, strict=True)}
 
@@ -56,7 +60,7 @@ class JobStartApi(Resource):
         retrieve scripts, patch scripts, check return codes,
         tell backend to run the job.
         """
-
+        job_token = None
         if current_app.config.get("AUTHENTICATE_ROUTES"):
             auth_url = current_app.config["AUTH_URL"]
             auth_string = request.headers.get("Authorization", "")
@@ -69,13 +73,49 @@ class JobStartApi(Resource):
             if response.status_code != 200:
                 abort(404, message="Invalid user token")
             job_token = response.json().get("job_token")
-        else:
-            job_token = None
 
-        _, _ = job_starter.start_job(
+        log = ResponseLog()
+        success = job_starter.preprocess(
+            job_id, scripts, fields_to_patch, job_token=job_token, log=log
+        )
+
+        if not success:
+            return make_response(
+                response=RequestStatus.FAIL, errors=log.errors, messages=log.messages
+            )
+
+        stdout, stderr, exit_code = job_starter.start_job(
             scripts, fields_to_patch, job_id, job_token
-        )  # message, return_code
-        return {"data": "Job submitting", "status": 200}
+        )
+        data = dict(stdout=stdout, stderr=stderr, exit_code=exit_code)
+        log.add_message(f"Successfully started job {job_id}.")
+        return make_response(messages=log.messages, errors=log.errors, data=data)
+
+
+class JobStopApi(Resource):
+    """
+    Stop a job.
+    """
+
+    @use_kwargs(job_stop_args, locations=("json",))
+    def post(self, job_id, scripts):
+
+        log = ResponseLog()
+
+        # stop the simulator job
+        log.add_message(f"Stopping job {job_id}.")
+        stdout, stderr, exit_code = job_starter.stop_job(job_id, scripts)
+        data = dict(stdout=stdout, stderr=stderr, exit_code=exit_code)
+
+        # update the middleware job status
+        middleware_url = current_app.config["MIDDLEWARE_API_BASE"]
+        r = requests.put(
+            f"{middleware_url}/job/{job_id}/status", json={"status": "STOPPED"}
+        )
+        if r.status_code == 200:
+            log.add_message("Updated status to Stopped.")
+
+        return make_response(messages=log.messages, data=data)
 
 
 class JobStatusApi(Resource):

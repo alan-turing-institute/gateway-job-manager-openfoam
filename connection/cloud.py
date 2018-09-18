@@ -44,7 +44,7 @@ class AzureBlobService:
             account_key=self.credentials.account_key,
         )
 
-    def retrieve_blob(self, blob_name, container_name, destination="/tmp/"):
+    def retrieve_blob(self, blob_name, container_name, destination="/tmp/", log=None):
         """
         use the BlockBlobService to retrieve file from Azure,
         and place in destination folder.
@@ -54,12 +54,13 @@ class AzureBlobService:
             self.block_blob_service.get_blob_to_path(
                 container_name, blob_name, os.path.join(destination, local_filename)
             )
-            return True, "retrieved script OK"
+            if log:
+                log.add_message(f"Successfully retrieved: {local_filename}")
+            return True
         except (AzureMissingResourceHttpError):
-            return (
-                False,
-                "failed to retrieve {} from {}".format(blob_name, container_name),
-            )
+            if log:
+                log.add_error(f"failed to retrieve {blob_name} from {container_name}")
+            return False
 
     def sas_token(self, container_name, token_duration=1, permissions="READ"):
         """
