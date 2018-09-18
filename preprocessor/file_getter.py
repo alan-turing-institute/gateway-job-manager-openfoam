@@ -53,7 +53,10 @@ def get_remote_scripts(scripts, destination_dir, log=None):
         source_uri = script["source"]
         blob_name, container_name = get_relative_path_from_uri(source_uri, acc_name)
         if blob_name is None or container_name is None:
-            log.add_error(f"Unable to extract blob or container name from {source_uri}")
+            if log:
+                log.add_error(
+                    f"Unable to extract blob or container name from {source_uri}"
+                )
             return False
         blob_relative_dir = os.path.dirname(blob_name)
         local_filepath = os.path.join(destination_dir, blob_relative_dir)

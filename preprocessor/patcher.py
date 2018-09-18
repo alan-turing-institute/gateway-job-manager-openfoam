@@ -56,7 +56,8 @@ def patch_all_scripts(job_id, scripts, parameters, job_dir, job_token=None, log=
         else:
             shutil.copy(raw_path, patched_path)
 
-    log.add_message("All scripts patched.")
+    if log:
+        log.add_message("All scripts patched.")
     return True
 
 

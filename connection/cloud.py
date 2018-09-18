@@ -54,10 +54,12 @@ class AzureBlobService:
             self.block_blob_service.get_blob_to_path(
                 container_name, blob_name, os.path.join(destination, local_filename)
             )
-            log.add_message(f"Successfully retrieved: {local_filename}")
+            if log:
+                log.add_message(f"Successfully retrieved: {local_filename}")
             return True
         except (AzureMissingResourceHttpError):
-            log.add_error(f"failed to retrieve {blob_name} from {container_name}")
+            if log:
+                log.add_error(f"failed to retrieve {blob_name} from {container_name}")
             return False
 
     def sas_token(self, container_name, token_duration=1, permissions="READ"):

@@ -6,13 +6,14 @@ import os
 import shutil
 import unittest.mock as mock
 
+from routes.helpers import ResponseLog
 from .fixtures import demo_app as app  # flake8: noqa
 
 RESOURCE_DIR = app().config["RESOURCE_DIR"]
 TMP_DIR = app().config["LOCAL_TMP_DIR"]
 
 
-def mock_get_remote_scripts(scripts, job_dir_raw):
+def mock_get_remote_scripts(scripts, job_dir_raw, log=None):
     """
     Bypass getting scripts from azure - just copy from local
     RESOURCE_DIR to tmp_dir instead
@@ -30,7 +31,7 @@ def mock_get_remote_scripts(scripts, job_dir_raw):
     return True, "All good"
 
 
-def mock_copy_scripts_to_backend(source_dir, dest_dir):
+def mock_copy_scripts_to_backend(source_dir, dest_dir, log=None):
     """
     Bypass copying the scripts to the remote machine.
     """
@@ -38,7 +39,7 @@ def mock_copy_scripts_to_backend(source_dir, dest_dir):
     return True, "All good"
 
 
-def mock_preprocess(scripts, parameters, job_id):
+def mock_preprocess(scripts, parameters, job_id, log=None):
     """
     Bypass the job getting/patching/putting.
     """
@@ -59,7 +60,7 @@ def mock_get_simulator_connection():
     """
 
     class dummy_connection:
-        def run_remote_command(command):
+        def run_remote_command(self, command):
             return command, "", 0
 
     return dummy_connection()
