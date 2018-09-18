@@ -99,8 +99,11 @@ class JobStopApi(Resource):
 
     @use_kwargs(job_stop_args, locations=("json",))
     def post(self, job_id, scripts):
-        _, _ = job_starter.stop_job(job_id, scripts)
-        return {"message": "Stopped job"}
+        log = ResponseLog()
+        stdout, stderr, exit_code = job_starter.stop_job(job_id, scripts)
+        log.add_message(f"Stopped job {job_id}")
+        data = dict(stdout=stdout, stderr=stderr, exit_code=exit_code)
+        return make_response(messages=log.messages, data=data)
 
 
 class JobStatusApi(Resource):
