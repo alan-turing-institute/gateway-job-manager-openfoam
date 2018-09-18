@@ -30,7 +30,8 @@ def verify_copy(copied_list, destination_dir, ssh_connection, log=None):
         if script not in found_files:
             errors.append(f"Could not find script: {script}")
             return False, messages, errors
-    log.add_message("Files verified")
+    if log:
+        log.add_message("Files verified")
     return True
 
 
