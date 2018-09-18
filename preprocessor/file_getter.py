@@ -48,27 +48,27 @@ def get_remote_scripts(scripts, destination_dir):
     azure_credentials = get_azure_credentials()
     acc_name = azure_credentials.account_name
     blob_retriever = AzureBlobService(azure_credentials)
-    retrieved_ok, message = True, "no scripts retrieved so far"
+    messages, errors = [], []
 
     for script in scripts:
         source_uri = script["source"]
         blob_name, container_name = get_relative_path_from_uri(source_uri, acc_name)
         if blob_name is None or container_name is None:
-            return (
-                False,
-                "Unable to extract blob or container name from {}".format(source_uri),
-            )
+            errors.append(f"Unable to extract blob or container name from {source_uri}")
+            return False, messages, errors
         blob_relative_dir = os.path.dirname(blob_name)
         local_filepath = os.path.join(destination_dir, blob_relative_dir)
         os.makedirs(local_filepath, exist_ok=True)
 
-        retrieved_ok, message = blob_retriever.retrieve_blob(
+        success, m, e = blob_retriever.retrieve_blob(
             blob_name, container_name, local_filepath
         )
-        if not retrieved_ok:
-            return retrieved_ok, message
+        if not success:
+            messages.extend(m)
+            errors.extend(e)
+            return False, messages, errors
         # modify the script dictionary (dicts are mutable) to replace the source uri
         # with just the relative path.  This way the patcher will be able to find it.
         script["source"] = blob_name
 
-    return retrieved_ok, message
+    return True, messages, errors

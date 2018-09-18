@@ -14,6 +14,7 @@ import os
 from manager import job_starter, job_output
 from .authentication import token_required, job_token_required
 from .helpers import make_response
+from connection.constants import RequestStatus
 
 job_field_args = {"name": fields.Str(required=True), "value": fields.Str(required=True)}
 
@@ -73,10 +74,23 @@ class JobStartApi(Resource):
                 abort(404, message="Invalid user token")
             job_token = response.json().get("job_token")
 
-        _, _ = job_starter.start_job(
+        messages, errors = [], []
+        success, m, e = job_starter.preprocess(
             scripts, fields_to_patch, job_id, job_token
-        )  # message, return_code
-        return {"data": "Job submitting", "status": 200}
+        )
+        messages.extend(m)
+        errors.extend(e)
+        if not success:
+            return make_response(
+                response=RequestStatus.FAIL, errors=errors, messages=messages
+            )
+
+        stdout, stderr, exit_code = job_starter.start_job(
+            scripts, fields_to_patch, job_id, job_token
+        )
+        data = dict(stdout=stdout, stderr=stderr, exit_code=exit_code)
+        messages.append(f"Successfully started job {job_id}.")
+        return make_response(messages=messages, errors=errors, data=data)
 
 
 class JobStopApi(Resource):

@@ -23,12 +23,15 @@ def verify_copy(copied_list, destination_dir, ssh_connection):
     check the output of "find" on the simulator matches the list of
     files that we copied.  Return False if any of them are missing.
     """
-    out, err, exit_code = ssh_connection.run_remote_command("find " + destination_dir)
-    found_files = out.split("\n")
+    messages, errors = [], []
+    stdout, _, _ = ssh_connection.run_remote_command("find " + destination_dir)
+    found_files = stdout.split("\n")
     for script in copied_list:
         if script not in found_files:
-            return False, "Did not find {}".format(script)
-    return True, "Files verified"
+            errors.append(f"Could not find script: {script}")
+            return False, messages, errors
+    messages.append("Files verified")
+    return True, messages, errors
 
 
 def copy_scripts_to_backend(source_basedir, destination_basedir, job_id):
@@ -39,6 +42,7 @@ def copy_scripts_to_backend(source_basedir, destination_basedir, job_id):
     The destination_basedir specified as an argument here
     should already have job_id appended to it.
     """
+    messages, errors = [], []
     ssh_connection = get_simulator_connection()
     # append the job_id to the destination dir
     destination_basedir = os.path.join(destination_basedir, str(job_id))
@@ -51,7 +55,7 @@ def copy_scripts_to_backend(source_basedir, destination_basedir, job_id):
 
     # need to preserve subdirectory structure in destination
     # - may need to create directories on the simulator.
-    for root, dirs, files in os.walk(source_basedir):
+    for root, _, files in os.walk(source_basedir):
         for script in files:
             local_file_path = os.path.join(root, script)
             rel_path = os.path.relpath(local_file_path, source_basedir)
@@ -62,10 +66,10 @@ def copy_scripts_to_backend(source_basedir, destination_basedir, job_id):
             ssh_connection.copy_file_to_simulator(local_file_path, destination_path)
             copied_filenames.append(destination_path)
     # check they all copied ok
-    copied_ok, message = verify_copy(
-        copied_filenames, destination_basedir, ssh_connection
-    )
-    if not copied_ok:
-        return copied_ok, "Problem copying files to simulator: {}".format(message)
+    success, m, e = verify_copy(copied_filenames, destination_basedir, ssh_connection)
+    messages.extend(m)
+    if not success:
+        errors.extend(e)
+        return False, messages, errors
     # all OK
-    return True, "All files transferred successfully"
+    return True, messages, errors

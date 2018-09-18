@@ -44,10 +44,8 @@ class SimulatorConnection:
         Shouldnt be called directly.
         """
         connection = self._ssh_connection()
-        out, err, exit_code = connection.pass_command(command)
-        if debug:
-            print(out)
-        return out, err, exit_code
+        stdout, stderr, exit_code = connection.pass_command(command)
+        return stdout, stderr, exit_code
 
     def copy_file_to_simulator(self, source, destination_dir, debug=False):
         """

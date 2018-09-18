@@ -28,6 +28,8 @@ def patch_all_scripts(scripts, parameters, job_dir, job_id, job_token):
         Create (if not already there) a subdirectory of the supplied
         dir called "patched", where the patched scripts will go.
         """
+
+    messages, errors = [], []
     # these directories have already been made by preprocessor
     raw_dir = os.path.join(job_dir, "raw")
     patched_basedir = os.path.join(job_dir, "patched")
@@ -54,7 +56,9 @@ def patch_all_scripts(scripts, parameters, job_dir, job_id, job_token):
             patch_one_script(raw_path, patched_path, param_dict)
         else:
             shutil.copy(raw_path, patched_path)
-    return True, "All scripts patched."
+
+    messages.append("All scripts patched.")
+    return True, messages, errors
 
 
 def patch_one_script(raw_path, patched_path, parameters):
