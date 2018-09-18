@@ -13,6 +13,7 @@ import os
 
 from manager import job_starter, job_output
 from .authentication import token_required, job_token_required
+from .helpers import make_response
 
 job_field_args = {"name": fields.Str(required=True), "value": fields.Str(required=True)}
 
@@ -58,7 +59,7 @@ class JobStartApi(Resource):
         retrieve scripts, patch scripts, check return codes,
         tell backend to run the job.
         """
-
+        job_token = None
         if current_app.config.get("AUTHENTICATE_ROUTES"):
             auth_url = current_app.config["AUTH_URL"]
             auth_string = request.headers.get("Authorization", "")
@@ -71,8 +72,6 @@ class JobStartApi(Resource):
             if response.status_code != 200:
                 abort(404, message="Invalid user token")
             job_token = response.json().get("job_token")
-        else:
-            job_token = None
 
         _, _ = job_starter.start_job(
             scripts, fields_to_patch, job_id, job_token
