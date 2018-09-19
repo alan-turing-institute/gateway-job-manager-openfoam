@@ -67,7 +67,7 @@ class JobStartApi(Resource):
             headers = {"Authorization": auth_string}
 
             response = requests.get(
-                f"{auth_url}/auth/token", headers=headers, params={"job_id": job_id}
+                f"{auth_url}/token", headers=headers, params={"job_id": job_id}
             )
 
             if response.status_code != 200:

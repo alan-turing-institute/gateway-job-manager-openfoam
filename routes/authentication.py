@@ -27,7 +27,7 @@ def token_required(f):
         else:
             # authenticate routes
             r = requests.get(
-                f"{auth_url}/auth/status", headers={"Authorization": token_string}
+                f"{auth_url}/status", headers={"Authorization": token_string}
             )
             if r.status_code == 200:
                 auth_key = current_app.config["AUTH_KEY"]
