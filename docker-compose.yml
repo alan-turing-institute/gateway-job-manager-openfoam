@@ -10,6 +10,6 @@ services:
     env_file:
       - ./keys/simulator.env
     environment:
-      - FLASK_CONFIGURATION=development
+      - FLASK_CONFIGURATION=dev
       - ENV_FLASK_APP=app.py
     command: gunicorn -w 1 -b :5010 app:app --reload
