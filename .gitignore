@@ -14,5 +14,5 @@ __pycache__/
 .pytest_cache/
 
 # secrets content
-config.development.json
-config.production.json
+config.dev.json
+config.prod.json

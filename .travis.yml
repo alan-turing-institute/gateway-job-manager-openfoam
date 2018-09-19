@@ -9,7 +9,7 @@ matrix:
    - python: 3.6
 
 before_install:
- - cp config.example.json config.development.json
+ - cp config.example.json config.dev.json
 
 install:
  - pip install -r requirements.txt
