@@ -73,5 +73,4 @@ def test_get(mock_get_azure_credentials):
         os.path.join(TMP_DIR, "damBreak", "0", "alpha.water.orig"),
     ]
     for target in target_filenames:
-        pass
         assert os.path.exists(target)
