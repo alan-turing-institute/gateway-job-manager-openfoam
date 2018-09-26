@@ -4,13 +4,15 @@ Mock functions to get and put scripts, useful for several tests.
 
 import os
 import shutil
+from pathlib import Path
+
 import unittest.mock as mock
 
 from routes.helpers import ResponseLog
 from .fixtures import demo_app as app  # flake8: noqa
 
-RESOURCE_DIR = app().config["RESOURCE_DIR"]
-TMP_DIR = app().config["LOCAL_TMP_DIR"]
+RESOURCE_DIR = "tests/resources"
+TMP_DIR = "test/tmp"
 
 
 def mock_get_remote_scripts(scripts, job_dir_raw, log=None):
@@ -20,14 +22,13 @@ def mock_get_remote_scripts(scripts, job_dir_raw, log=None):
     """
 
     for script in scripts:
-        source_filepath = os.path.join(RESOURCE_DIR, script["source"])
-        source_dir = os.path.dirname(script["source"])
-        source_basename = os.path.basename(script["source"])
-        print("source_basename %s source_dir %s" % (source_basename, source_dir))
-        if len(source_dir) > 0:
-            os.makedirs(os.path.join(job_dir_raw, source_dir), exist_ok=True)
-        raw_filepath = os.path.join(job_dir_raw, script["source"])
-        shutil.copy(source_filepath, raw_filepath)
+        source_filepath = Path(RESOURCE_DIR).joinpath(script["source"])
+        raw_filepath = Path(job_dir_raw).joinpath(script["source"])
+        raw_filepath.parent.mkdir(exist_ok=True, parents=True)
+
+        print(f"cp {source_filepath.as_posix()} {raw_filepath.as_posix()}")
+
+        shutil.copy(source_filepath.as_posix(), raw_filepath.as_posix())
     return True, "All good"
 
 

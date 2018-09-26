@@ -15,7 +15,7 @@ from requests_mock import Mocker
 from .decorators import request_context
 from .fixtures import demo_app as app  # flake8: noqa
 from routes import JobOutputApi, JobStatusApi
-import manager
+import operations
 
 from posixpath import join
 
@@ -32,9 +32,9 @@ MIDDLEWARE_URL = "http://middleware:5000"
 def test_get_token(app):
     with Mocker() as m:
         m.put(MIDDLEWARE_URL + "/job/1/status", json="data")
-        #### why do we have to mock the following??  Hangs if we don't...
-        manager.job_output.check_create_blob_container = mock.MagicMock(
-            return_value="dambreakoutput"
+        # thread hangs if the following is not mocked
+        operations.post.check_create_blob_container = mock.MagicMock(
+            return_value="openfoam-test-output"
         )
         result = JobStatusApi().dispatch_request(1)
         print(result)

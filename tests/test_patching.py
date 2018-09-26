@@ -10,6 +10,7 @@ import shutil
 import tempfile
 import time
 
+import pytest
 from pytest import raises
 from werkzeug.exceptions import HTTPException
 import unittest.mock as mock
@@ -20,14 +21,15 @@ from .fixtures import demo_app as app  # flake8: noqa
 from .mock_functions import mock_get_remote_scripts, mock_copy_scripts_to_backend
 
 import preprocessor
+import operations
+import github
 from preprocessor import patcher
 from routes import JobStartApi
 
 
-RESOURCE_DIR = app().config["RESOURCE_DIR"]
-TMP_DIR = app().config["LOCAL_TMP_DIR"]
-
-DAMBREAK_DIR = os.path.join(RESOURCE_DIR, "damBreak")
+RESOURCE_DIR = "tests/resources"
+TMP_DIR = "tests/tmp"
+DAMBREAK_DIR = "tests/resources"
 
 
 def clear_and_recreate_tmp_dir():
@@ -39,6 +41,24 @@ def clear_and_recreate_tmp_dir():
     os.mkdir(TMP_DIR)
 
 
+def copy_mock_scripts(job_id):
+    """
+    Moves mock contents to tmp/job_id/raw
+    """
+    mock_dir = f"{RESOURCE_DIR}/mock"
+    target_dir = f"{TMP_DIR}/{job_id}/raw"
+    shutil.copytree(mock_dir, target_dir)
+
+
+def copy_damBreak_scripts(job_id):
+    """
+    Moves damBreak contents to tmp/job_id/raw
+    """
+    mock_dir = f"{RESOURCE_DIR}/damBreak"
+    target_dir = f"{TMP_DIR}/{job_id}/raw"
+    shutil.copytree(mock_dir, target_dir)
+
+
 def test_simple_patch():
     """
     use mako to replace "foo" with "bar" in input_script_0.py
@@ -47,7 +67,7 @@ def test_simple_patch():
     clear_and_recreate_tmp_dir()
 
     base_filename = "input_script_0.py"
-    source_script = os.path.join(RESOURCE_DIR, base_filename)
+    source_script = os.path.join(RESOURCE_DIR, "mock", base_filename)
     assert os.path.exists(source_script)
     raw_dir = os.path.join(TMP_DIR, "raw")
     if not os.path.exists(raw_dir):
@@ -83,6 +103,7 @@ def test_simple_patch():
 
 
 patch_with_start_data = """{
+    "repository": {"url": "https://github.com/alan-turing-institute/simulate-damBreak.git"},
     "fields_to_patch":
     [
       {"name" : "FOO", "value" : "BAR"},
@@ -97,32 +118,31 @@ patch_with_start_data = """{
     "username": "testuser"
     }"""
 
-# @mock.patch('preprocessor.file_putter.copy_scripts_to_backend',
-#            side_effect=mock_copy_scripts_to_backend)
-@mock.patch(
-    "preprocessor.file_getter.get_remote_scripts", side_effect=mock_get_remote_scripts
-)
+
 @request_context(
-    "/job/1/start",
-    1,
+    "/job/ddeee3ad-7c49-4133-955b-9e58f3378cc8/start",
+    0,
     data=patch_with_start_data,
     content_type="application/json",
     method="POST",
 )
-def test_patch_with_start(mock_get_remote_scripts, app):
+def test_patch_with_start(app):
     """
     test patching via the job/<job_id>/start API endpoint.
     Mock the functions to get the script from azure and copy to backend.
     """
-    clear_and_recreate_tmp_dir()
 
-    preprocessor.file_putter.copy_scripts_to_backend = mock.MagicMock(
-        return_value=(True, "")
-    )
-    result = JobStartApi().dispatch_request(1)
+    job_id = "ddeee3ad-7c49-4133-955b-9e58f3378cc8"
+    clear_and_recreate_tmp_dir()
+    copy_mock_scripts(job_id)
+
+    operations.pre.simulator_clone = mock.MagicMock(return_value=True)
+    preprocessor.file_putter.copy_scripts_to_backend = mock.MagicMock(return_value=True)
+    github.clone = mock.MagicMock(return_value=True)
+    result = JobStartApi().dispatch_request(job_id)
 
     assert result["status"] == "success"
-    time.sleep(5)
+    time.sleep(1)
     filename_param_map = [
         {"filename": "input_script_1.py", "param": "BAR"},
         {"filename": "input_script_2.py", "param": "Bar"},
@@ -153,10 +173,11 @@ def test_patch_with_start(mock_get_remote_scripts, app):
 
 dir_patch_data = """
     {
+      "repository": {"url": "https://github.com/alan-turing-institute/simulate-damBreak.git"},
       "scripts" :
         [
-          {"source" : "damBreak/Allrun", "destination" : "Allrun", "action": "START", "patch" : false},
-          {"source" : "damBreak/0/U", "destination" : "0/U", "action": "", "patch" : true}
+          {"source" : "Allrun", "destination" : "Allrun", "action": "START", "patch" : false},
+          {"source" : "0/U", "destination" : "0/U", "action": "", "patch" : true}
         ],
       "fields_to_patch" :
         [
@@ -167,29 +188,32 @@ dir_patch_data = """
 """
 
 
-@mock.patch(
-    "preprocessor.file_getter.get_remote_scripts", side_effect=mock_get_remote_scripts
-)
 @request_context(
-    "/job/1/start",
-    1,
+    "/job/d207ca48-6f76-4ce0-9c7e-b8c88a15764d/start",
+    0,
     data=dir_patch_data,
     content_type="application/json",
     method="POST",
 )
-def test_patch_with_directory_structure(mock_get_remote_scripts, app):
+def test_patch_with_directory_structure(app):
     """
     Test we can patch a more complicated directory structure
     and also have the correct path structure in the patched output dir
     """
-    clear_and_recreate_tmp_dir()
 
-    preprocessor.file_putter.copy_scripts_to_backend = mock.MagicMock(
-        return_value=(True, "")
-    )
-    result = JobStartApi().dispatch_request(1)
+    job_id = "d207ca48-6f76-4ce0-9c7e-b8c88a15764d"
+
+    clear_and_recreate_tmp_dir()
+    copy_damBreak_scripts(job_id)
+
+    operations.pre.simulator_clone = mock.MagicMock(return_value=True)
+    preprocessor.file_putter.copy_scripts_to_backend = mock.MagicMock(return_value=True)
+    github.clone = mock.MagicMock(return_value=True)
+
+    result = JobStartApi().dispatch_request(job_id)
     assert result["status"] == "success"
-    time.sleep(5)
+
+    time.sleep(1)
     job_dirs = os.listdir(TMP_DIR)
     assert len(job_dirs) == 1
     job_dir = os.path.join(TMP_DIR, job_dirs[0])
@@ -213,9 +237,10 @@ def test_patch_with_directory_structure(mock_get_remote_scripts, app):
 
 openfoam_patch_data = """
     {
+      "repository": {"url": "https://github.com/alan-turing-institute/simulate-damBreak.git"},
       "scripts" :
         [
-          {"source" : "damBreak/constant/transportProperties",
+          {"source" : "constant/transportProperties",
            "destination" : "constant/transportProperties",
            "action": "", "patch" : true}
         ],
@@ -232,29 +257,30 @@ openfoam_patch_data = """
 """
 
 
-@mock.patch(
-    "preprocessor.file_getter.get_remote_scripts", side_effect=mock_get_remote_scripts
-)
 @request_context(
-    "/job/1/start",
-    1,
+    "/job/d207ca48-6f76-4ce0-9c7e-b8c88a15764d/start",
+    0,
     data=openfoam_patch_data,
     content_type="application/json",
     method="POST",
 )
-def test_patch_openfoam(mock_get_remote_scripts, app):
+def test_patch_openfoam(app):
     """
     Test we can patch a more complicated directory structure
     and also have the correct path structure in the patched output dir
     """
-    clear_and_recreate_tmp_dir()
 
-    preprocessor.file_putter.copy_scripts_to_backend = mock.MagicMock(
-        return_value=(True, "")
-    )
-    result = JobStartApi().dispatch_request(1)
+    job_id = "d207ca48-6f76-4ce0-9c7e-b8c88a15764d"
+    clear_and_recreate_tmp_dir()
+    copy_damBreak_scripts(job_id)
+
+    operations.pre.simulator_clone = mock.MagicMock(return_value=True)
+    preprocessor.file_putter.copy_scripts_to_backend = mock.MagicMock(return_value=True)
+    github.clone = mock.MagicMock(return_value=True)
+
+    result = JobStartApi().dispatch_request(job_id)
     assert result["status"] == "success"
-    time.sleep(5)
+    time.sleep(1)
     job_dirs = os.listdir(TMP_DIR)
     assert len(job_dirs) == 1
     job_dir = os.path.join(TMP_DIR, job_dirs[0])
@@ -276,10 +302,11 @@ def test_patch_openfoam(mock_get_remote_scripts, app):
 
 jobid_patch_data = """
     {
+      "repository": {"url": "https://github.com/alan-turing-institute/simulate-damBreak.git"},
       "scripts" :
         [
-          {"source" : "damBreak/job_id",
-           "destination" : "damBreak/job_id",
+          {"source" : "job_id",
+           "destination" : "job_id",
            "action": "", "patch" : true}
         ],
       "fields_to_patch" :
@@ -290,34 +317,34 @@ jobid_patch_data = """
 """
 
 
-@mock.patch(
-    "preprocessor.file_getter.get_remote_scripts", side_effect=mock_get_remote_scripts
-)
 @request_context(
-    "/job/1357/start",
-    1,
+    "/job/d207ca48-6f76-4ce0-9c7e-b8c88a15764d/start",
+    0,
     data=jobid_patch_data,
     content_type="application/json",
     method="POST",
 )
-def test_patch_jobid(mock_get_remote_scripts, app):
+def test_patch_jobid(app):
     """
     Test that if we have a file called job_id with a mako parameter 'job_id'
     in, it should automatically get the job's job_id patched in
     """
+    job_id = "d207ca48-6f76-4ce0-9c7e-b8c88a15764d"
     clear_and_recreate_tmp_dir()
+    copy_damBreak_scripts(job_id)
 
-    preprocessor.file_putter.copy_scripts_to_backend = mock.MagicMock(
-        return_value=(True, "")
-    )
-    result = JobStartApi().dispatch_request(1357)
+    operations.pre.simulator_clone = mock.MagicMock(return_value=True)
+    preprocessor.file_putter.copy_scripts_to_backend = mock.MagicMock(return_value=True)
+    github.clone = mock.MagicMock(return_value=True)
+
+    result = JobStartApi().dispatch_request(job_id)
     assert result["status"] == "success"
-    time.sleep(5)
+    time.sleep(1)
     job_dirs = os.listdir(TMP_DIR)
     assert len(job_dirs) == 1
     job_dir = os.path.join(TMP_DIR, job_dirs[0])
     patched_dir = os.path.join(job_dir, "patched")
-    patched_filename = os.path.join(patched_dir, "damBreak/job_id")
+    patched_filename = os.path.join(patched_dir, "job_id")
     with open(patched_filename, "r") as f:
         content = f.readlines()
-    assert content[0].strip() == "1357"
+    assert content[0].strip() == job_id
