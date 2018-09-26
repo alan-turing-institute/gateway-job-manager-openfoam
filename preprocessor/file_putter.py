@@ -47,9 +47,7 @@ def copy_scripts_to_backend(job_id, source_basedir, destination_basedir, log=Non
     ssh_connection = get_simulator_connection()
     # append the job_id to the destination dir
     destination_basedir = os.path.join(destination_basedir, str(job_id))
-    # remove the base directory (containing job_id) on the remote system,
-    # in the unlikely event that it already exists
-    ssh_connection.run_remote_command("rm -fr {}".format(destination_basedir))
+
     # compile a list of files (including path) that we're copying, so we can
     # check it later
     copied_filenames = []

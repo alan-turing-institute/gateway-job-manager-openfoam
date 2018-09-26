@@ -4,37 +4,40 @@ Patch in-place - write out the same filename as we started with.
 """
 
 
-from mako.template import Template as MakoTemplate
 import os
+from pathlib import Path
 import shutil
+
+from mako.template import Template as MakoTemplate
 
 
 def consolidate_params(parameter_list):
     """
-        receive a list of dicts [{"name":"xxx","value":"yyy"},{ ...}]
-        output one dict {"xxx":"yyy", ... }
-        """
+    receive a list of dicts [{"name":"xxx","value":"yyy"},{ ...}]
+    output one dict {"xxx":"yyy", ... }
+    """
     output_dict = {}
     for param in parameter_list:
         output_dict[param["name"]] = param["value"]
-        pass
     return output_dict
 
 
-def patch_all_scripts(job_id, scripts, parameters, job_dir, job_token=None, log=None):
+def patch_all_scripts(
+    job_id, scripts, fields_to_patch, job_dir, job_token=None, log=None
+):
     """
-        Method to apply a patch based on a supplied template file.
-        Loop through all files in a given directory.
-        Create (if not already there) a subdirectory of the supplied
-        dir called "patched", where the patched scripts will go.
-        """
+    Method to apply a patch based on a supplied template file.
+    Loop through all files in a given directory.
+    Create (if not already there) a subdirectory of the supplied
+    dir called "patched", where the patched scripts will go.
+    """
 
     # these directories have already been made by preprocessor
-    raw_dir = os.path.join(job_dir, "raw")
-    patched_basedir = os.path.join(job_dir, "patched")
+    raw_dir = Path(job_dir).joinpath("raw")
+    patched_dir = Path(job_dir).joinpath("patched")
 
     # need parameters in the form of one dictionary {"param" : "value", ... }
-    param_dict = consolidate_params(parameters)
+    param_dict = consolidate_params(fields_to_patch)
     # add the job_id to the dict of parameters to be patched
     param_dict["job_id"] = job_id
     param_dict["job_token"] = job_token
@@ -42,29 +45,28 @@ def patch_all_scripts(job_id, scripts, parameters, job_dir, job_token=None, log=
     # loop through all files in the input directory
     for script in scripts:
 
-        raw_path = os.path.join(raw_dir, script["source"])
+        # must have a source in order to patch
+        if script["source"] == None:
+            continue
 
-        patched_path = os.path.join(patched_basedir, script["destination"])
-        # "destination" may contain subdirectories - need to create dir structure
-        # if it's not already there..
-        patched_dir = os.path.dirname(patched_path)
-        os.makedirs(patched_dir, exist_ok=True)
+        raw_path = raw_dir.joinpath(script["source"])
+        patched_path = patched_dir.joinpath(script["destination"])
 
-        # patch or copy
+        patched_path.parent.mkdir(parents=True, exist_ok=True)
+
         if script["patch"]:
-            patch_one_script(raw_path, patched_path, param_dict)
-        else:
-            shutil.copy(raw_path, patched_path)
+            patch_one_script(raw_path.as_posix(), patched_path.as_posix(), param_dict)
 
     if log:
         log.add_message("All scripts patched.")
+
     return True
 
 
 def patch_one_script(raw_path, patched_path, parameters):
     """
-        Apply mako dict to one script.
-        """
+    Apply mako dict to one script.
+    """
     template = MakoTemplate(filename=raw_path, input_encoding="utf-8")
     try:
         with open(patched_path, "w") as f:

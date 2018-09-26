@@ -11,23 +11,30 @@ from webargs.flaskparser import use_kwargs
 import requests
 import os
 
-from manager import job_starter, job_output
+from operations import append_token, prepare_output_storage, setup, start_job, stop_job
 from .authentication import token_required, job_token_required
 from .helpers import make_response, ResponseLog
 from connection.constants import RequestStatus
 
 job_field_args = {"name": fields.Str(required=True), "value": fields.Str(required=True)}
 
+job_repository_args = {
+    "url": fields.Str(required=True, strict=True),
+    "branch": fields.Str(required=False),
+    "commit": fields.Str(required=False),
+}
+
 job_script_args = {
-    "source": fields.Str(required=True),
+    "source": fields.Str(required=True, allow_none=True),
     "destination": fields.Str(required=True),
     "patch": fields.Boolean(required=False),
-    "action": fields.Str(required=False),
+    "action": fields.Str(required=False, allow_none=True),
 }
 
 
 job_start_args = {
     "username": fields.Str(required=True, strict=True),
+    "repository": fields.Nested(job_repository_args, required=True, allow_none=True),
     "fields_to_patch": fields.List(fields.Nested(job_field_args)),
     "scripts": fields.List(fields.Nested(job_script_args)),
 }
@@ -55,12 +62,21 @@ class JobStartApi(Resource):
 
     @use_kwargs(job_start_args, locations=("json",))
     @token_required
-    def post(self, job_id, username, fields_to_patch, scripts, token_username=None):
+    def post(
+        self,
+        job_id,
+        username,
+        repository,
+        fields_to_patch,
+        scripts,
+        token_username=None,
+    ):
         """
         retrieve scripts, patch scripts, check return codes,
         tell backend to run the job.
         """
         job_token = None
+        data = None
         if current_app.config.get("AUTHENTICATE_ROUTES"):
             auth_url = current_app.config["AUTH_URL"]
             auth_string = request.headers.get("Authorization", "")
@@ -75,16 +91,16 @@ class JobStartApi(Resource):
             job_token = response.json().get("job_token")
 
         log = ResponseLog()
-        success = job_starter.preprocess(
-            job_id, scripts, fields_to_patch, job_token=job_token, log=log
-        )
 
+        success = setup(
+            job_id, repository, scripts, fields_to_patch, job_token=job_token, log=log
+        )
         if not success:
             return make_response(
                 response=RequestStatus.FAIL, errors=log.errors, messages=log.messages
             )
 
-        stdout, stderr, exit_code = job_starter.start_job(
+        stdout, stderr, exit_code = start_job(
             scripts, fields_to_patch, job_id, job_token
         )
         data = dict(stdout=stdout, stderr=stderr, exit_code=exit_code)
@@ -104,7 +120,7 @@ class JobStopApi(Resource):
 
         # stop the simulator job
         log.add_message(f"Stopping job {job_id}.")
-        stdout, stderr, exit_code = job_starter.stop_job(job_id, scripts)
+        stdout, stderr, exit_code = stop_job(job_id, scripts)
         data = dict(stdout=stdout, stderr=stderr, exit_code=exit_code)
 
         # update the middleware job status
@@ -138,7 +154,7 @@ class JobStatusApi(Resource):
         )
         if r.status_code == 200:
             if status.upper() == "FINALIZING":
-                acc, con, tok = job_output.prepare_output_storage()
+                acc, con, tok = prepare_output_storage()
                 return {
                     "status": r.status_code,
                     "data": {
@@ -176,7 +192,7 @@ class JobOutputApi(Resource):
         outputs = r.json().get("outputs")
 
         # append SAS token to each output URL
-        outputs_with_token = job_output.append_token(outputs)
+        outputs_with_token = append_token(outputs)
         return outputs_with_token
 
     @use_kwargs(job_output_list_args, locations=("json",))
@@ -192,10 +208,6 @@ class JobOutputApi(Resource):
                 401,
                 {"WWW-Authenticate": 'Bearer realm="Login Required"'},
             )
-
-        # return {
-        #     "DEBUG": {"token_job_id": token_job_id, "token_username": token_username}
-        # }
 
         middleware_url = current_app.config["MIDDLEWARE_API_BASE"]
         auth_token_string = request.headers.get("Authorization")
