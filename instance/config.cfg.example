@@ -1,6 +1,0 @@
-SSH_USERNAME='testuser'
-SSH_HOSTNAME='simulate_simulator_1'
-SSH_PORT=22
-SSH_PRIVATE_KEY_PATH='keys/simulator_key'
-SSH_PRIVATE_KEY_STRING=None
-SIM_ROOT='/home/testuser'

@@ -1,7 +1,7 @@
 FROM base/archlinux:latest
 
 # Install a bunch of extra packages
-RUN pacman -Sy --noconfirm sudo python python-pip openssh vim supervisor
+RUN pacman -Sy --noconfirm sudo python python-pip openssh vim supervisor git glibc gcc python-psycopg2 libffi
 
 # Set up a UTF 8 locale
 RUN sed -i "s/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/" /etc/locale.gen
