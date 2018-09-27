@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import shutil
 
+from flask import current_app
 from mako.template import Template as MakoTemplate
 
 
@@ -41,6 +42,7 @@ def patch_all_scripts(
     # add the job_id to the dict of parameters to be patched
     param_dict["job_id"] = job_id
     param_dict["job_token"] = job_token
+    param_dict["manager_url"] = current_app.config["MANAGER_API_BASE"]
 
     # loop through all files in the input directory
     for script in scripts:
