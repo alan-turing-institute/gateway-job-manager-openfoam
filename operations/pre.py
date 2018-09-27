@@ -67,10 +67,12 @@ def simulator_clone(job_id, repository, log=None):
     target_dir = f"/tmp/{job_id}"
 
     if branch and commit:
-        cmd = f"git clone {url} --branch {branch} {target_dir} && cd {target_dir} && git checkout {commit}"
+        cmd = f"git clone {url} --branch {branch} {target_dir} && "
+        "cd {target_dir} && git checkout {commit}"
     elif commit:
         cmd = (
-            f"git clone {url} {target_dir} && cd {target_dir} && git checkout {commit}"
+            f"git clone {url} {target_dir} && cd {target_dir} && "
+            "git checkout {commit}"
         )
     else:
         cmd = f"git clone {url} {target_dir}"

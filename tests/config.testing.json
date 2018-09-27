@@ -10,6 +10,7 @@
   "RESOURCE_DIR": "tests/resources",
   "STORAGE_OUTPUT_CONTAINER": "openfoam-test-output",
   "MIDDLEWARE_API_BASE": "http://middleware:5000",
+  "MANAGER_API_BASE": "http://middleware:5000",
   "AUTHENTICATE_ROUTES": false,
   "AUTH_URL": "http://auth:5050",
   "AUTH_KEY": "my_precious",

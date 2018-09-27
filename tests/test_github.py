@@ -15,4 +15,3 @@ def test_clone(tmpdir):
     clone(REPO_URL, destination)
 
     assert Path(destination).exists()
-

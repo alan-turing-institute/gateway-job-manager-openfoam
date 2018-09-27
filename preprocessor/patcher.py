@@ -48,7 +48,7 @@ def patch_all_scripts(
     for script in scripts:
 
         # must have a source in order to patch
-        if script["source"] == None:
+        if script["source"] is None:
             continue
 
         raw_path = raw_dir.joinpath(script["source"])
