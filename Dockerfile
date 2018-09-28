@@ -1,4 +1,4 @@
-FROM base/archlinux:latest
+FROM base/archlinux:2018.09.01
 
 # Install a bunch of extra packages
 RUN pacman -Sy --noconfirm sudo python python-pip openssh vim supervisor git glibc gcc python-psycopg2 libffi
@@ -23,7 +23,6 @@ RUN mkdir -p /var/log/supervisor && \
 
 ADD supervisor/supervisor.conf /etc/supervisor.conf
 ADD supervisor/app.conf /etc/supervisor/conf.d/app.conf
-
 
 RUN useradd -mU -s /bin/bash testuser && echo 'testuser:testuser' | chpasswd
 RUN echo "docker ALL=(ALL:ALL) ALL" | (EDITOR="tee -a" visudo)
