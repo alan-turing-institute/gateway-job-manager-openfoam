@@ -64,7 +64,8 @@ def simulator_clone(job_id, repository, log=None):
     branch = repository.get("branch")
     commit = repository.get("commit")
 
-    target_dir = f"/tmp/{job_id}"
+    sim_tmp_dir = current_app.config["SIM_TMP_DIR"]
+    target_dir = f"{sim_tmp_dir}/{job_id}"
 
     if branch and commit:
         cmd = f"git clone {url} --branch {branch} {target_dir} && "

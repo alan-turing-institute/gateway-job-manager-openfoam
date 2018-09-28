@@ -14,7 +14,6 @@ class SSH_Credentials:
         self.ssh_port = app_config.get("SSH_PORT")
         self.private_key_path = app_config.get("SSH_PRIVATE_KEY_PATH")
         self.private_key_string = app_config.get("SSH_PRIVATE_KEY_STRING")
-        self.sim_root = app_config.get("SSH_SIM_ROOT")
 
 
 class SimulatorConnection:

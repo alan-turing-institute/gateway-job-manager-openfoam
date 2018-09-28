@@ -4,7 +4,6 @@
   "SSH_HOSTNAME": "simulator",
   "SSH_PORT": 22,
   "SSH_PRIVATE_KEY_PATH": "keys/simulator_key",
-  "SIM_ROOT": "/home/testuser",
   "SIM_TMP_DIR": "/tmp",
   "LOCAL_TMP_DIR": "tests/tmp",
   "RESOURCE_DIR": "tests/resources",
