@@ -171,8 +171,6 @@ def start_job(scripts, parameters, job_id, job_token, log=None):
     """
 
     stdout, stderr, exit_code = execute_action(scripts, job_id, "RUN", log=log)
-    if log:
-        log.add_message(f"FROM start_job: {stdout}")
 
     return stdout, stderr, exit_code
 

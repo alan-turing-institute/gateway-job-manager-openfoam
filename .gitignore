@@ -4,7 +4,7 @@
 # generated content
 simulator_key*
 simulator.env
-flow_key*
+github_key*
 *.log
 *.pid
 tests/tmp/

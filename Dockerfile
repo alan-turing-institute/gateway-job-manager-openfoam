@@ -24,10 +24,14 @@ RUN mkdir -p /var/log/supervisor && \
 ADD supervisor/supervisor.conf /etc/supervisor.conf
 ADD supervisor/app.conf /etc/supervisor/conf.d/app.conf
 
+
 RUN useradd -mU -s /bin/bash testuser && echo 'testuser:testuser' | chpasswd
 RUN echo "docker ALL=(ALL:ALL) ALL" | (EDITOR="tee -a" visudo)
 RUN echo "AllowUsers testuser" >> /etc/ssh/sshd_config
 
 RUN [ ! -f /etc/ssh/ssh_host_rsa_key ] && ssh-keygen -A;
+
+ADD keys/config /root/.ssh/config
+ADD keys/config /home/testuser/.ssh/config
 
 CMD ["supervisord", "-c", "/etc/supervisor.conf"]
