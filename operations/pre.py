@@ -68,15 +68,15 @@ def simulator_clone(job_id, repository, log=None):
     target_dir = f"{sim_tmp_dir}/{job_id}"
 
     if branch and commit:
-        cmd = f"git clone {url} --branch {branch} {target_dir} && "
+        cmd = f"git clone --quiet {url} --branch {branch} {target_dir} && "
         "cd {target_dir} && git checkout {commit}"
     elif commit:
         cmd = (
-            f"git clone {url} {target_dir} && cd {target_dir} && "
+            f"git clone --quiet {url} {target_dir} && cd {target_dir} && "
             "git checkout {commit}"
         )
     else:
-        cmd = f"git clone {url} {target_dir}"
+        cmd = f"git clone --quiet {url} {target_dir}"
 
     if log:
         log.add_message(f"{cmd}")
@@ -130,7 +130,7 @@ def preprocess(job_id, scripts, parameters, job_token=None, log=None):
     return True
 
 
-def execute_action(scripts, job_id, action):
+def execute_action(scripts, job_id, action, log=None):
     """
     Perform the 'action' on relevant scripts on the backend.
     """
@@ -154,21 +154,25 @@ def execute_action(scripts, job_id, action):
                     "log": "log.{}".format(stem),
                 }
 
-                run_cmd = "cd {workdir} && bash ./{script} > {log}".format_map(options)
+                run_cmd = "cd {workdir} && bash ./{script} | tee {log}".format_map(
+                    options
+                )
 
                 stdout, stderr, exit_code = sim_connection.run_remote_command(run_cmd)
                 break
     return stdout, stderr, exit_code
 
 
-def start_job(scripts, parameters, job_id, job_token):
+def start_job(scripts, parameters, job_id, job_token, log=None):
     """
     Called by the job/<jobid>/start API endpoint.
     Get the scripts onto the simulator via the preprocess method,
     and perform their actions.
     """
 
-    stdout, stderr, exit_code = execute_action(scripts, job_id, "RUN")
+    stdout, stderr, exit_code = execute_action(scripts, job_id, "RUN", log=log)
+    if log:
+        log.add_message(f"FROM start_job: {stdout}")
 
     return stdout, stderr, exit_code
 

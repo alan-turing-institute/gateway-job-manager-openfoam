@@ -101,11 +101,22 @@ class JobStartApi(Resource):
             )
 
         stdout, stderr, exit_code = start_job(
-            scripts, fields_to_patch, job_id, job_token
+            scripts, fields_to_patch, job_id, job_token, log=log
         )
-        data = dict(stdout=stdout, stderr=stderr, exit_code=exit_code)
-        log.add_message(f"Successfully started job {job_id}.")
-        return make_response(messages=log.messages, errors=log.errors, data=data)
+
+        if exit_code == 0:
+            log.add_message(f"Successfully started job {job_id}.")
+            data = dict(stdout=stdout, stderr=stderr, exit_code=exit_code)
+            return make_response(messages=log.messages, errors=log.errors, data=data)
+        else:
+            log.add_error(f"Error in job {job_id} execution.")
+            data = dict(stdout=stdout, stderr=stderr, exit_code=exit_code)
+            return make_response(
+                response=RequestStatus.FAIL,
+                messages=log.messages,
+                errors=log.errors,
+                data=data,
+            )
 
 
 class JobStopApi(Resource):
