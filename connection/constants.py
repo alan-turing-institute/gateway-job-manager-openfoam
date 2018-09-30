@@ -12,13 +12,14 @@ class JobStatus(Enum):
     Job status enum. Variable must always be UPPERCASE.
     """
 
-    FAILED = "Failed"
+    NOT_STARTED = "Not Started"
+    STARTED = "Started"
+    STOPPED = "Stopped"
+    QUEUED = "Queued"
     RUNNING = "Running"
     FINALIZING = "Finalizing"
     COMPLETED = "Completed"
-    NOT_STARTED = "Not Started"
-    QUEUED = "Queued"
-    STOPPED = "Stopped"
+    FAILED = "Failed"
 
 
 class StatusConverter(BaseConverter):

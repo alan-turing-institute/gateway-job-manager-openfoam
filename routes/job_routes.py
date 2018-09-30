@@ -100,6 +100,10 @@ class JobStartApi(Resource):
                 response=RequestStatus.FAIL, errors=log.errors, messages=log.messages
             )
 
+        middleware_url = current_app.config["MIDDLEWARE_API_BASE"]
+        requests.put(
+            f"{middleware_url}/job/{job_id}/status", json={"status": "STARTED"}
+        )
         stdout, stderr, exit_code = start_job(
             scripts, fields_to_patch, job_id, job_token, log=log
         )
@@ -160,9 +164,7 @@ class JobStatusApi(Resource):
         middleware_url = current_app.config["MIDDLEWARE_API_BASE"]
         status_dict = {"status": status}
 
-        r = requests.put(
-            "{}/job/{}/status".format(middleware_url, str(job_id)), json=status_dict
-        )
+        r = requests.put(f"{middleware_url}/job/{job_id}/status", json=status_dict)
         if r.status_code == 200:
             if status.upper() == "FINALIZING":
                 acc, con, tok = prepare_output_storage()
