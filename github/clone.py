@@ -2,7 +2,7 @@ from git import Repo
 import subprocess
 
 
-def clone(url, destination):
+def clone(url, destination, branch):
     """Clones from a given remote url.
 
     Args:
@@ -10,5 +10,5 @@ def clone(url, destination):
         destination (str): Destination for cloned directory.
     """
 
-    # shallow clone for speed
-    Repo.clone_from(url, destination, depth=1)
+    # shallow clone for speed, add `depth=1` kwarg
+    Repo.clone_from(url, destination, branch=branch)

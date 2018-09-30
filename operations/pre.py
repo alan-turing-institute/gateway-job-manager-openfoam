@@ -13,6 +13,16 @@ from preprocessor import file_getter, patcher, file_putter
 import github
 
 
+def add_scm_token(url):
+    token = current_app.config.get("SCM_TOKEN")
+
+    if token:
+        url_tokenised = url.replace("https://github.com", f"https://{token}@github.com")
+        return url_tokenised
+    else:
+        return url
+
+
 def setup(job_id, repository, scripts, fields_to_patch, job_token=None, log=None):
     """
     Clones case from github; only patched files are transferred to simulator.
@@ -25,10 +35,17 @@ def setup(job_id, repository, scripts, fields_to_patch, job_token=None, log=None
     job_dir_patched = job_dir.joinpath("patched").as_posix()
 
     if repository:
-        repo_url = repository["url"]
+        repo_url_raw = repository["url"]
+        repo_url = add_scm_token(repo_url_raw)
         if log:
-            log.add_message(f"Cloning {repo_url}.")
-        github.clone(repo_url, destination=job_dir_raw)
+            log.add_message(f"Cloning {repo_url_raw} (with token).")
+
+        requested_branch = repository.get("branch")
+        if requested_branch:
+            branch = requested_branch
+        else:
+            branch = "master"
+        github.clone(repo_url, destination=job_dir_raw, branch=branch)
 
     if log:
         log.add_message(f"Patching scripts.")
@@ -55,6 +72,8 @@ def setup(job_id, repository, scripts, fields_to_patch, job_token=None, log=None
     else:
         return False
 
+    # return True  # DEBUG
+
 
 def simulator_clone(job_id, repository, log=None):
 
@@ -67,13 +86,14 @@ def simulator_clone(job_id, repository, log=None):
     sim_tmp_dir = current_app.config["SIM_TMP_DIR"]
     target_dir = f"{sim_tmp_dir}/{job_id}"
 
-    if branch and commit:
-        cmd = f"git clone --quiet {url} --branch {branch} {target_dir} && "
-        "cd {target_dir} && git checkout {commit}"
-    elif commit:
+    url = add_scm_token(url)
+
+    if commit:
+        cmd = f"git clone --quiet {url} {target_dir} && "
+        f"cd {target_dir} && git checkout {commit}"
+    elif branch:
         cmd = (
-            f"git clone --quiet {url} {target_dir} && cd {target_dir} && "
-            "git checkout {commit}"
+            f"git clone --quiet --branch {branch} {url} {target_dir} && cd {target_dir}"
         )
     else:
         cmd = f"git clone --quiet {url} {target_dir}"

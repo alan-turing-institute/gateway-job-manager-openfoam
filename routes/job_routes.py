@@ -20,8 +20,8 @@ job_field_args = {"name": fields.Str(required=True), "value": fields.Str(require
 
 job_repository_args = {
     "url": fields.Str(required=True, strict=True),
-    "branch": fields.Str(required=False),
-    "commit": fields.Str(required=False),
+    "branch": fields.Str(required=False, allow_none=True),
+    "commit": fields.Str(required=False, allow_none=True),
 }
 
 job_script_args = {
@@ -95,32 +95,34 @@ class JobStartApi(Resource):
         success = setup(
             job_id, repository, scripts, fields_to_patch, job_token=job_token, log=log
         )
-        if not success:
-            return make_response(
-                response=RequestStatus.FAIL, errors=log.errors, messages=log.messages
-            )
 
-        middleware_url = current_app.config["MIDDLEWARE_API_BASE"]
-        requests.put(
-            f"{middleware_url}/job/{job_id}/status", json={"status": "STARTED"}
-        )
-        stdout, stderr, exit_code = start_job(
-            scripts, fields_to_patch, job_id, job_token, log=log
-        )
+        return {"manual": success, "messages": log.messages, "errors": log.errors}
+        # if not success:
+        #     return make_response(
+        #         response=RequestStatus.FAIL, errors=log.errors, messages=log.messages
+        #     )
 
-        if exit_code == 0:
-            log.add_message(f"Successfully started job {job_id}.")
-            data = dict(stdout=stdout, stderr=stderr, exit_code=exit_code)
-            return make_response(messages=log.messages, errors=log.errors, data=data)
-        else:
-            log.add_error(f"Error in job {job_id} execution.")
-            data = dict(stdout=stdout, stderr=stderr, exit_code=exit_code)
-            return make_response(
-                response=RequestStatus.FAIL,
-                messages=log.messages,
-                errors=log.errors,
-                data=data,
-            )
+        # middleware_url = current_app.config["MIDDLEWARE_API_BASE"]
+        # requests.put(
+        #     f"{middleware_url}/job/{job_id}/status", json={"status": "STARTED"}
+        # )
+        # stdout, stderr, exit_code = start_job(
+        #     scripts, fields_to_patch, job_id, job_token, log=log
+        # )
+
+        # if exit_code == 0:
+        #     log.add_message(f"Successfully started job {job_id}.")
+        #     data = dict(stdout=stdout, stderr=stderr, exit_code=exit_code)
+        #     return make_response(messages=log.messages, errors=log.errors, data=data)
+        # else:
+        #     log.add_error(f"Error in job {job_id} execution.")
+        #     data = dict(stdout=stdout, stderr=stderr, exit_code=exit_code)
+        #     return make_response(
+        #         response=RequestStatus.FAIL,
+        #         messages=log.messages,
+        #         errors=log.errors,
+        #         data=data,
+        #     )
 
 
 class JobStopApi(Resource):
