@@ -167,16 +167,7 @@ def execute_action(scripts, job_id, action, log=None):
 
         if script["action"] == action:
             if action in ["RUN", "STOP"]:
-
-                options = {
-                    "workdir": job_root,
-                    "script": script_path,
-                    "log": "log.{}".format(stem),
-                }
-
-                run_cmd = "cd {workdir} && bash ./{script} | tee {log}".format_map(
-                    options
-                )
+                run_cmd = f"cd {job_root} && nohup bash ./{script_path} > log.{stem} 2>log.{stem}.err < /dev/null &"
 
                 stdout, stderr, exit_code = sim_connection.run_remote_command(run_cmd)
                 break

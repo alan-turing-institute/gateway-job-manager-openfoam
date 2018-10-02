@@ -1,4 +1,0 @@
-host github.com
- HostName github.com
- IdentityFile /app/keys/github_key
- User git
