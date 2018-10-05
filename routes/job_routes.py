@@ -169,6 +169,7 @@ class JobStatusApi(Resource):
         if r.status_code == 200:
             if status.upper() == "FINALIZING":
                 acc, con, tok = prepare_output_storage()
+                # TODO refactor to support permanent READ token, and temporary write token
                 return {
                     "status": r.status_code,
                     "data": {

@@ -66,17 +66,18 @@ class AzureBlobService:
         """
         Create token that expires in n hours
         """
-        token_permission = (
-            ContainerPermissions.WRITE
-            if permissions == "WRITE"
-            else ContainerPermissions.READ
-        )
+        if permissions == "WRITE":
+            # give both read and write access
+            token_permission = ContainerPermissions(read=True, write=True)
+        else:
+            token_permission = ContainerPermissions.READ
+
         token = self.block_blob_service.generate_container_shared_access_signature(
             container_name=container_name,
             permission=token_permission,
             protocol="https",
-            start=arrow.utcnow().shift(hours=-1).datetime,
-            expiry=arrow.utcnow().shift(hours=token_duration).datetime,
+            start=arrow.utcnow().shift(hours=-2).datetime,
+            expiry=arrow.utcnow().shift(days=token_duration).datetime,
         )
         return token
 

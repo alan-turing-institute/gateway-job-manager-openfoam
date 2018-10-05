@@ -45,7 +45,7 @@ def get_sas_token(permissions="READ"):
     azure_credentials = AzureCredentials(current_app.config)
     azure_blob_service = AzureBlobService(azure_credentials)
     token = azure_blob_service.sas_token(
-        container_name, token_duration=2, permissions=permissions
+        container_name, token_duration=100, permissions=permissions
     )
     return token
 
